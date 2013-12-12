@@ -1,12 +1,12 @@
+#coding=UTF-8
 '''
+  Loader for View.
 '''
 
 class Loader(object):
     '''
     implement ui autoload and properties creation.
     '''
-
-
     def __init__(self, filename):
         '''
         Constructor define private virtual function _get_object
@@ -18,7 +18,10 @@ class Loader(object):
         obj = self._get_object(name[1:])
         setattr(self, "_" + name[1:], obj)
         return obj
-        
+    
+    def _get_object(self, name):
+        raise Exception("You have to implement _get_object function in Loader's subclass!")
+        return
         
 class GtkLoader(Loader):
     '''
@@ -27,12 +30,10 @@ class GtkLoader(Loader):
     def __init__(self, filename):
         from gi.repository import Gtk
         self.builder = Gtk.Builder()
+        self._get_object = self.builder.get_object
         self.builder.add_from_file(filename)
         self.builder.connect_signals(self)
-        self._get_object = self.builder.get_object
     
-    
-
 class QtLoader(Loader):    
     '''
         autoload qt ui file
@@ -63,6 +64,9 @@ class MyGtkWidget(Widget, GtkLoader):
     def __init__(self, filename):
         Widget.__init__(self)
         GtkLoader.__init__(self, filename)
+        
+    def clicked(self, widget):
+        print widget
  
 from PySide import QtGui
 import sys
