@@ -35,7 +35,7 @@ class GtkLoader(Loader):
         for each in custom_widget_types:
             GObject.type_register(each)
         self.builder.add_from_file(filename)
-        self.builder.connect_signals(self)
+#         self.builder.connect_signals(self)
     
 class QtLoader(Loader):    
     '''
