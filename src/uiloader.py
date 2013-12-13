@@ -27,10 +27,13 @@ class GtkLoader(Loader):
     '''
         autoload glade file
     ''' 
-    def __init__(self, filename):
+    def __init__(self, filename, custom_widget_types = []):
         from gi.repository import Gtk
+        from gi.repository import GObject
         self.builder = Gtk.Builder()
         self._get_object = self.builder.get_object
+        for each in custom_widget_types:
+            GObject.type_register(each)
         self.builder.add_from_file(filename)
         self.builder.connect_signals(self)
     
