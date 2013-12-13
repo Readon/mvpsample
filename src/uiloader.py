@@ -7,7 +7,7 @@ class Loader(object):
     '''
     implement ui autoload and properties creation.
     '''
-    def __init__(self, filename):
+    def __init__(self, filename, custom_widget_types = []):
         '''
         Constructor define private virtual function _get_object
         '''
@@ -47,7 +47,7 @@ class QtLoader(Loader):
         loader = qloader()
         for each in custom_widget_types:
             loader.registerCustomWidget(each)
-        self.builder = loader.load(pf, self)
+        self.builder = loader.load(pf)
         return
     
     def _get_object(self, name):
@@ -57,17 +57,13 @@ class QtLoader(Loader):
         return self.builder.findChild(QWidget, name)
     
 # test for pyside
-from PySide.QtGui import QWidget
-class MyQtWidget(QWidget, QtLoader):
+class MyQtView(QtLoader):
     def __init__(self, filename):
-        QWidget.__init__(self)
         QtLoader.__init__(self, filename)
 
 # test for pygobject     
-from gi.repository.Gtk import Widget
-class MyGtkWidget(Widget, GtkLoader):
+class MyGtkView(GtkLoader):
     def __init__(self, filename):
-        Widget.__init__(self)
         GtkLoader.__init__(self, filename)
         
     def clicked(self, widget):
@@ -77,8 +73,8 @@ from PySide import QtGui
 import sys
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    qt = MyQtWidget('main.ui')
+    qt = MyQtView('main.ui')
     print qt._pushButton.text()
     
-    obj = MyGtkWidget('main.glade')
+    obj = MyGtkView('main.glade')
     print obj._button1.get_name()
