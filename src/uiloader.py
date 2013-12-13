@@ -38,13 +38,16 @@ class QtLoader(Loader):
     '''
         autoload qt ui file
     '''
-    def __init__(self, filename):        
+    def __init__(self, filename, custom_widget_types = []):        
         from PySide.QtUiTools import QUiLoader as qloader
         from PySide.QtCore import QFile as qfile
         
         pf = qfile(filename)
         pf.open(qfile.ReadOnly)
-        self.builder = qloader().load(pf, self)
+        loader = qloader()
+        for each in custom_widget_types:
+            loader.registerCustomWidget(each)
+        self.builder = loader.load(pf, self)
         return
     
     def _get_object(self, name):
