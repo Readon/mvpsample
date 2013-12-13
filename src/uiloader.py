@@ -48,6 +48,8 @@ class QtLoader(Loader):
         return
     
     def _get_object(self, name):
+        if self.builder.objectName() == name:
+            return self.builder
         from PySide.QtGui import QWidget
         return self.builder.findChild(QWidget, name)
     
