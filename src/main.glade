@@ -20,12 +20,13 @@
       </packing>
     </child>
     <child>
-      <object class="GtkCalendar" id="calendar1">
+      <object class="GtkEntry" id="entry">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="year">2013</property>
-        <property name="month">11</property>
-        <property name="day">10</property>
+        <property name="invisible_char">●</property>
+        <property name="text" translatable="yes">hello</property>
+        <property name="shadow_type">etched-out</property>
+        <property name="input_purpose">url</property>
       </object>
       <packing>
         <property name="expand">False</property>
@@ -42,6 +43,21 @@
         <property name="expand">False</property>
         <property name="fill">True</property>
         <property name="position">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSpinButton" id="spinbutton">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="invisible_char">●</property>
+        <property name="climb_rate">1</property>
+        <property name="snap_to_ticks">True</property>
+        <property name="numeric">True</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">3</property>
       </packing>
     </child>
   </object>
