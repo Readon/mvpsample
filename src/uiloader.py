@@ -12,53 +12,65 @@ class Loader(object):
         Constructor define private virtual function _get_object
         '''
         self._get_object = None
+        self._widgets = {}
         
     def __getattr__(self, name):   
         #internal attribute should be start with "_"
         obj = self._get_object(name[1:])
         setattr(self, "_" + name[1:], obj)
+        print obj, name
+        self._widgets[obj] = name[1:]
         return obj
     
     def _get_object(self, name):
         raise Exception("You have to implement _get_object function in Loader's subclass!")
-        return
+        return    
         
+try:    
+    from gi.repository import Gtk
+    from gi.repository import GObject
+except:
+    pass
 class GtkLoader(Loader):
     '''
-        autoload glade file
+        autoload gtk glade file
     ''' 
     def __init__(self, filename, custom_widget_types = []):
-        from gi.repository import Gtk
-        from gi.repository import GObject
-        self.builder = Gtk.Builder()
-        self._get_object = self.builder.get_object
+        super(GtkLoader, self).__init__(filename)
+        self._builder = Gtk.Builder()
+        self._get_object = self._builder.get_object
         for each in custom_widget_types:
             GObject.type_register(each)
-        self.builder.add_from_file(filename)
+        self._builder.add_from_file(filename)
+        self.top = [each for each in self._builder.get_objects() if each.get_parent() is None][0]
 #         self.builder.connect_signals(self)
-    
+               
+try:  
+    from PySide.QtUiTools import QUiLoader as qloader
+    from PySide.QtCore import QFile as qfile
+except:
+    pass
 class QtLoader(Loader):    
     '''
         autoload qt ui file
     '''
-    def __init__(self, filename, custom_widget_types = []):        
-        from PySide.QtUiTools import QUiLoader as qloader
-        from PySide.QtCore import QFile as qfile
-        
+    def __init__(self, filename, custom_widget_types = []): 
+        super(QtLoader, self).__init__(filename)
         pf = qfile(filename)
         pf.open(qfile.ReadOnly)
         loader = qloader()
         for each in custom_widget_types:
             loader.registerCustomWidget(each)
-        self.builder = loader.load(pf)
+        self.top = loader.load(pf)
+        setattr(self, "_" + self.top.objectName(), self.top)
+        self.widgets[self.top] = self.top.objectName() 
         return
-    
+     
     def _get_object(self, name):
-        if self.builder.objectName() == name:
-            return self.builder
         from PySide.QtGui import QWidget
-        return self.builder.findChild(QWidget, name)
-    
+        return self.top.findChild(QWidget, name)
+
+        
 # test for pyside
 class MyQtView(QtLoader):
     def __init__(self, filename):
@@ -75,9 +87,14 @@ class MyGtkView(GtkLoader):
 from PySide import QtGui
 import sys
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
-    qt = MyQtView('main.ui')
-    print qt._pushButton.text()
+#     app = QtGui.QApplication(sys.argv)
+#     qt = MyQtView('main.ui')
+#     print qt.top
     
+    from gi.repository import Gtk
+    win = Gtk.Window()    
     obj = MyGtkView('main.glade')
-    print obj._button1.get_name()
+    win.add(obj.top)
+    win.show_all()
+    Gtk.main()
+    print obj.top
