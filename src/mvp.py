@@ -5,8 +5,6 @@ Created on 2013-12-14
 @copyright: reserved
 @note: Supervising Controller Model-View-Presenter Pattern
 '''
-# from uiloader import GtkLoader, QtLoader
-from eventize import ObservedAttribute
 
 class Model(object):
     '''
@@ -14,79 +12,57 @@ class Model(object):
     '''
     def __init__(self):
         return
+    
+class BindOP(object):
+    def __init__(self, conn_func, get_func, set_func):
+        self.connect = conn_func
+        self.get_value = get_func
+        self.set_value = set_func
         
 class View(object):
     '''
     Manage widgets in view, which could be auto loaded.
     '''
     def __init__(self):
-        self._get_object = None
-        self._widgets = {}
+        self.get_object = None
+        self.widgets = {}
         return
                 
     def __getattr__(self, name):   
         #internal attribute should be start with "_"
-        obj = self._get_object(name[1:])
+        print self.get_object
+        obj = self.get_object(name[1:])
         setattr(self, "_" + name[1:], obj)
-        self._widgets[obj] = name[1:]
+        self.widgets[obj] = name[1:]
+        
+        opset = self.get_binding_op(obj)
+        setattr(obj, "_connect", opset.connect)
+        setattr(obj, "_get_value", opset.get_value)
+        setattr(obj, "_set_value", opset.set_value)
         return obj
     
-    def _get_object(self, name):
-        raise Exception("You have to implement _get_object function in Loader's subclass!")
+    def get_object(self, name):
+        raise Exception("You have to implement get_object function in Loader's subclass!")
         return 
             
     def set_presenter(self, presenter):
-        self._presenter = presenter
+        self.presenter = presenter
         
     def change_value(self, widgetname, value):
         widget = getattr(self, "_" + widgetname)
-        widget._set_text(value)
+        widget._set_value(value)
         
     def bind_signal(self, widgetname):
         widget = getattr(self, "_" + widgetname)
-        widget._connect("activate", self._value_changed)
+        widget._connect(self.value_changed)
         
-    def _value_changed(self, widget):
-        self._presenter.view_changed(self._widgets[widget], widget._get_text())
+    def value_changed(self, widget):
+        self.presenter.view_changed(self.widgets[widget], widget._get_value())
         
-try:    
-    from gi.repository import Gtk
-    from gi.repository import GObject
-except:
-    pass  
-class GtkView(View):
-    def __init__(self, filename, custom_widget_types = []):
-        View.__init__(self)
-        
-        self._builder = Gtk.Builder()
-        self._get_object = self._builder.get_object
-        for each in custom_widget_types:
-            GObject.type_register(each)
-        self._builder.add_from_file(filename)
-        self.top = [each for each in self._builder.get_objects() if each.get_parent() is None][0]
-        
-try:  
-    from PySide.QtUiTools import QUiLoader as qloader
-    from PySide.QtCore import QFile as qfile
-except:
-    pass
-class QtView(View):    
-    def __init__(self, filename, custom_widget_types = []): 
-        View.__init__(self)
-        
-        pf = qfile(filename)
-        pf.open(qfile.ReadOnly)
-        loader = qloader()
-        for each in custom_widget_types:
-            loader.registerCustomWidget(each)
-        self.top = loader.load(pf)
-        setattr(self, "_" + self.top.objectName(), self.top)
-        self.widgets[self.top] = self.top.objectName() 
-        
-    def _get_object(self, name):
-        from PySide.QtGui import QWidget
-        return self.top.findChild(QWidget, name)
-    
+    def get_binding_op(self, widget):
+        raise Exception("You have to implement get_binding_op function in Loader's subclass!")
+   
+from eventize.events import Expect 
 class Presenter(object):
     '''
     Bind parts of widgets and model entries specified.
@@ -96,61 +72,35 @@ class Presenter(object):
         self._model = model
         self._view = view
         view.set_presenter(self)
-        self._model_view = {}
-        self._view_model = {}
+        self._model2view = {}
+        self._view2model = {}
         
     def easy_bind(self, widgetname, modelname):
-        self._model_view[modelname] = widgetname
-        self._view_model[widgetname] = modelname
+        self._model2view[modelname] = widgetname
+        self._view2model[widgetname] = modelname
         
-        entry = getattr(self._model, modelname)        
+        entry = getattr(self._model, modelname)  
+#         value_changed = Expect.value.not_equal_to(entry)      
+#         event = entry.on_set.when(value_changed)
+#         event += self.model_changed
         entry.on_set += self.model_changed
         
         self._view.bind_signal(widgetname)
         
+#     def coversion_bind(self, widgetname, widgettype, modelname, modeltype):        
+#         self._model2view[modelname] = widgetname
+#         self._view2model[widgetname] = modelname
+#         
+#         entry = getattr(self._model, modelname)        
+#         entry.on_set += self.model_changed
+#         
+#         self._view.bind_signal(widgetname)
+        
     def view_changed(self, widgetname, value):
         print "view", widgetname, value
-        setattr(self._model, self._view_model[widgetname], value)
+        setattr(self._model, self._view2model[widgetname], value)
         
     def model_changed(self, event):
-        print "model", event.name, event.value
-        self._view.change_value(self._model_view[event.name], event.value)
+        print "model", event.subject, event.name, event.value
+        self._view.change_value(self._model2view[event.name], event.value)
         
-class MyModel(Model):    
-    weight = ObservedAttribute(90.0)
-    text = ObservedAttribute("hello")
-    
-    def __init__(self):
-        super(MyModel, self).__init__()
-        return
-
-# test for pygobject     
-class MyGtkView(GtkView):
-    def __init__(self, filename):
-        super(MyGtkView, self).__init__(filename)
-        
-    def clicked(self, widget):
-        print widget
-        
-class MyPresenter(Presenter):
-    def __init__(self, model, view):
-        super(MyPresenter, self).__init__(model, view)
-        self.easy_bind("entry", "text")
-        
-        self._model.text = "test"
-    
-# from PySide import QtGui
-from gi.repository import Gtk
-import sys
-if __name__ == '__main__':
-#     app = QtGui.QApplication(sys.argv)
-#     qt = MyQtView('main.ui')
-#     print qt.top
-    
-    win = Gtk.Window()
-    obj = MyPresenter(MyModel(), MyGtkView('main.glade'))
-    win.add(obj._view.top)
-    win.show_all()    
-    win.connect("delete-event", Gtk.main_quit)
-    Gtk.main()
-    print obj._view.top
