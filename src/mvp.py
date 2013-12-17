@@ -5,8 +5,8 @@ Created on 2013-12-14
 @copyright: reserved
 @note: Supervising Controller Model-View-Presenter Pattern
 '''
-
-class Model(object):
+from traits.api import HasTraits
+class Model(HasTraits):
     '''
     Save & manage data.
     '''
@@ -79,28 +79,21 @@ class Presenter(object):
         self._model2view[modelname] = widgetname
         self._view2model[widgetname] = modelname
         
-        entry = getattr(self._model, modelname)  
-#         value_changed = Expect.value.not_equal_to(entry)      
-#         event = entry.on_set.when(value_changed)
-#         event += self.model_changed
-        entry.on_set += self.model_changed
+        self._model.on_trait_change(self.model_changed, modelname)
+        self._view.bind_signal(widgetname)
+ 
+    def conversion_bind(self, widgetname, modelname):
+        self._model2view[modelname] = widgetname
+        self._view2model[widgetname] = modelname
         
+        self._model.on_trait_change(self.model_changed, modelname)
         self._view.bind_signal(widgetname)
         
-#     def coversion_bind(self, widgetname, widgettype, modelname, modeltype):        
-#         self._model2view[modelname] = widgetname
-#         self._view2model[widgetname] = modelname
-#         
-#         entry = getattr(self._model, modelname)        
-#         entry.on_set += self.model_changed
-#         
-#         self._view.bind_signal(widgetname)
-        
     def view_changed(self, widgetname, value):
-        print "view", widgetname, value
+#         print "view", widgetname, value
         setattr(self._model, self._view2model[widgetname], value)
         
-    def model_changed(self, event):
-        print "model", event.subject, event.name, event.value
-        self._view.change_value(self._model2view[event.name], event.value)
+    def model_changed(self, widget, value):
+#         print "model", widget, value
+        self._view.change_value(self._model2view[widget], value)
         
