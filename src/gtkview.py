@@ -61,13 +61,9 @@ class MyPresenter(Presenter):
 #         self._model.text = "test"
         self._model.weight = 80
     
-# from PySide import QtGui
 from gi.repository import Gtk
 import sys
 if __name__ == '__main__':
-#     app = QtGui.QApplication(sys.argv)
-#     qt = MyQtView('main.ui')
-#     print qt.top
     
     win = Gtk.Window()
     obj = MyPresenter(MyModel(), MyGtkView('main.glade'))
