@@ -31,7 +31,8 @@ class QtView(View, Qt.QWidget):
         pf.open(qfile.ReadOnly)
         loader = qloader()
         for each in custom_widget_types:
-            loader.registerCustomWidget(each)            
+            loader.registerCustomWidget(each)
+        print loader.availableWidgets()            
         self.top = loader.load(pf)
         
         setattr(self, "_" + self.top.objectName(), self.top)
@@ -74,10 +75,14 @@ class MyPresenter(Presenter):
 #         self._model.weight = 80
     
 from PySide import QtGui
+from qtcustom import CustomLineEdit
 import sys
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    obj = MyPresenter(MyModel(), MyView('main.ui'))
+    
+    custom_widget_types = [CustomLineEdit]
+    extra_bind_op={CustomLineEdit : lambda obj: BindOP(qtconnect(obj, "textChanged"), obj.text, obj.setText)}
+    obj = MyPresenter(MyModel(), MyView('main.ui', custom_widget_types, extra_bind_op))
     obj._view.top.show()    
     sys.exit(app.exec_())
     
