@@ -48,8 +48,8 @@ class MyModel(Model):
 
 # test for pygobject     
 class MyView(GtkView):
-    def __init__(self, filename):
-        super(MyView, self).__init__(filename)
+    def __init__(self, *arglist, **keywords):
+        super(MyView, self).__init__(*arglist, **keywords)
         adjustment = Gtk.Adjustment(0, 0, 100, 1, 10, 0)
         self._spinbutton.set_adjustment(adjustment)
         
@@ -62,10 +62,16 @@ class MyPresenter(Presenter):
         self._model.text = "test"
         self._model.weight = 80
     
+from gtkcustom import CustomEntry
 if __name__ == '__main__':    
     win = Gtk.Window()
-    obj = MyPresenter(MyModel(), MyView('main.glade'))
+    
+    custom_widget_types = [CustomEntry]
+    extra_bind_op={CustomEntry : lambda obj: BindOP(partial(obj.connect, "activate"), obj.get_text, obj.set_text)}
+    obj = MyPresenter(MyModel(), MyView('main.glade', custom_widget_types, extra_bind_op))
+        
     win.add(obj._view.top)
     win.show_all()    
     win.connect("delete-event", Gtk.main_quit)
+    
     Gtk.main()

@@ -61,8 +61,8 @@ class MyModel(Model):
 
 # test for pygobject     
 class MyView(QtView):
-    def __init__(self, filename):
-        super(MyView, self).__init__(filename)
+    def __init__(self, *arglist, **keywords):
+        super(MyView, self).__init__(*arglist, **keywords)
         
 class MyPresenter(Presenter):
     def __init__(self, model, view):

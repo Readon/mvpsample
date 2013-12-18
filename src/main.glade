@@ -20,7 +20,7 @@
       </packing>
     </child>
     <child>
-      <object class="GtkEntry" id="entry">
+      <object class="gtkcustom+CustomEntry" id="entry">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="invisible_char">●</property>
