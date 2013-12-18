@@ -24,13 +24,11 @@ class View(object):
     Manage widgets in view, which could be auto loaded.
     '''
     def __init__(self):
-        self.get_object = None
         self.widgets = {}
         return
                 
     def __getattr__(self, name):   
         #internal attribute should be start with "_"
-        print self.get_object
         obj = self.get_object(name[1:])
         setattr(self, "_" + name[1:], obj)
         self.widgets[obj] = name[1:]
@@ -44,6 +42,9 @@ class View(object):
     def get_object(self, name):
         raise Exception("You have to implement get_object function in Loader's subclass!")
         return 
+    
+    def get_topview(self):
+        return self._view.top
             
     def set_presenter(self, presenter):
         self.presenter = presenter
@@ -57,7 +58,7 @@ class View(object):
         widget._connect(self.value_changed)
         
     def value_changed(self, widget):
-        self.presenter.view_changed(self.widgets[widget], widget._get_value())
+        raise Exception("You have to implement get_object function in Loader's subclass!")
         
     def get_binding_op(self, widget):
         raise Exception("You have to implement get_binding_op function in Loader's subclass!")
@@ -72,28 +73,22 @@ class Presenter(object):
         self._model = model
         self._view = view
         view.set_presenter(self)
-        self._model2view = {}
-        self._view2model = {}
+        self._model2view_map = {}
+        self._view2model_map = {}
         
     def easy_bind(self, widgetname, modelname):
-        self._model2view[modelname] = widgetname
-        self._view2model[widgetname] = modelname
-        
-        self._model.on_trait_change(self.model_changed, modelname)
-        self._view.bind_signal(widgetname)
- 
-    def conversion_bind(self, widgetname, modelname):
-        self._model2view[modelname] = widgetname
-        self._view2model[widgetname] = modelname
+        self._model2view_map[modelname] = widgetname
+        self._view2model_map[widgetname] = modelname
         
         self._model.on_trait_change(self.model_changed, modelname)
         self._view.bind_signal(widgetname)
         
     def view_changed(self, widgetname, value):
-#         print "view", widgetname, value
-        setattr(self._model, self._view2model[widgetname], value)
+        print "view", widgetname, value
+        name = self._view2model_map[widgetname]
+        setattr(self._model, name, value)
         
     def model_changed(self, widget, value):
-#         print "model", widget, value
-        self._view.change_value(self._model2view[widget], value)
+        print "model", widget, value
+        self._view.change_value(self._model2view_map[widget], value)
         

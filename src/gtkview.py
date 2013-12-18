@@ -18,7 +18,7 @@ class GtkView(View):
         Gtk.Entry : lambda obj: BindOP(partial(obj.connect, "activate"), obj.get_text, obj.set_text),
         Gtk.SpinButton : lambda obj: BindOP(partial(obj.connect, "output"), obj.get_value_as_int, obj.set_value),
     }
-    def __init__(self, filename, custom_widget_types = []):
+    def __init__(self, filename, custom_widget_types = [], extra_bind_op = {}):
         View.__init__(self)
         
         self.builder = Gtk.Builder()
@@ -27,9 +27,14 @@ class GtkView(View):
             GObject.type_register(each)
         self.builder.add_from_file(filename)
         self.top = [each for each in self.builder.get_objects() if each.get_parent() is None][0]
+                
+        self.__BIND_OP__.update(extra_bind_op)
         
     def get_binding_op(self, widget):
-        return self.__BIND_OP__[type(widget)](widget)  
+        return self.__BIND_OP__[type(widget)](widget) 
+    
+    def value_changed(self, widget, *arglist):        
+        self.presenter.view_changed(self.widgets[widget], widget._get_value()) 
 
 from mvp import Model, Presenter    
 from traits.api import Float, String
@@ -42,9 +47,9 @@ class MyModel(Model):
         return
 
 # test for pygobject     
-class MyGtkView(GtkView):
+class MyView(GtkView):
     def __init__(self, filename):
-        super(MyGtkView, self).__init__(filename)
+        super(MyView, self).__init__(filename)
         adjustment = Gtk.Adjustment(0, 0, 100, 1, 10, 0)
         self._spinbutton.set_adjustment(adjustment)
         
@@ -59,7 +64,7 @@ class MyPresenter(Presenter):
     
 if __name__ == '__main__':    
     win = Gtk.Window()
-    obj = MyPresenter(MyModel(), MyGtkView('main.glade'))
+    obj = MyPresenter(MyModel(), MyView('main.glade'))
     win.add(obj._view.top)
     win.show_all()    
     win.connect("delete-event", Gtk.main_quit)
