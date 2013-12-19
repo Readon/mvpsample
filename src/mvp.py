@@ -63,7 +63,6 @@ class View(object):
     def get_binding_op(self, widget):
         raise Exception("You have to implement get_binding_op function in Loader's subclass!")
    
-from eventize.events import Expect 
 class Presenter(object):
     '''
     Bind parts of widgets and model entries specified.
