@@ -18,6 +18,21 @@ def qtconnect(widget, signalname):
     signal = getattr(widget, signalname)
     return signal.connect
 
+class UiLoader(qloader):
+    def __init__(self, custom_widgets_types):
+        qloader.__init__(self)
+        typedict = {}
+        for each in custom_widget_types:
+            typedict[each.__name__] = each
+        self._custom_widgets = typedict
+
+    def createWidget(self, clsname, parent=None, name=''):
+        if clsname in self._custom_widgets:
+            widget = self._custom_widgets[clsname](parent)
+        else:
+            widget = qloader.createWidget(self, clsname, parent, name)
+        return widget
+
 class QtView(View, Qt.QWidget):
     __BIND_OP__ = {
         Qt.QLineEdit : lambda obj: BindOP(qtconnect(obj, "textChanged"), obj.text, obj.setText),
@@ -28,11 +43,8 @@ class QtView(View, Qt.QWidget):
         Qt.QWidget.__init__(self)
         
         pf = qfile(filename)
-        pf.open(qfile.ReadOnly)
-        loader = qloader()
-        for each in custom_widget_types:
-            loader.registerCustomWidget(each)
-        print loader.availableWidgets()            
+        pf.open(qfile.ReadOnly)                    
+        loader = UiLoader(custom_widget_types)            
         self.top = loader.load(pf)
         
         setattr(self, "_" + self.top.objectName(), self.top)
