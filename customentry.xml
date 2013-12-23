@@ -3,10 +3,10 @@
  <init-function>glade_python_init</init-function>
 
  <glade-widget-classes>
-   <glade-widget-class title="CustomEntry" name="CustomEntry" generic-name="customentry"/>
+   <glade-widget-class title="CustomEntry" name="gtkcustom+CustomEntry" generic-name="customentry" parent="GtkEntry"/>
  </glade-widget-classes>
 
  <glade-widget-group name="python" title="Python">
-   <glade-widget-class-ref name="CustomEntry"/>
+   <glade-widget-class-ref name="gtkcustom+CustomEntry"/>
  </glade-widget-group>
 </glade-catalog>
