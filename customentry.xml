@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glade-catalog name="gtkcustom" library="gladepython" domain="glade-3" depends="gtk+">
+ <init-function>glade_python_init</init-function>
+
+ <glade-widget-classes>
+   <glade-widget-class title="CustomEntry" name="CustomEntry" generic-name="customentry"/>
+ </glade-widget-classes>
+
+ <glade-widget-group name="python" title="Python">
+   <glade-widget-class-ref name="CustomEntry"/>
+ </glade-widget-group>
+</glade-catalog>
