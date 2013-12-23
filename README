@@ -1,0 +1,4 @@
+Here is the project implemented mvp pattern.
+
+Dependency:
+    Traits, fetch from ETS or our samba server.
