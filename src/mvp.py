@@ -75,19 +75,21 @@ class Presenter(object):
         self._model2view_map = {}
         self._view2model_map = {}
         
-    def easy_bind(self, widgetname, modelname):
-        self._model2view_map[modelname] = widgetname
-        self._view2model_map[widgetname] = modelname
+    def easy_bind(self, widgetname, model, entryname):
+        if model not in self._model2view_map:
+            self._model2view_map[model] = {}
+        self._model2view_map[model][entryname] = widgetname
+        self._view2model_map[widgetname] = (model, entryname)
         
-        self._model.on_trait_change(self.model_changed, modelname)
+        model.on_trait_change(self.model_changed, entryname)
         self._view.bind_signal(widgetname)
         
     def view_changed(self, widgetname, value):
         print "view", widgetname, value
-        name = self._view2model_map[widgetname]
-        setattr(self._model, name, value)
+        model, entryname = self._view2model_map[widgetname]
+        setattr(model, entryname, value)
         
-    def model_changed(self, widget, value):
-        print "model", widget, value
-        self._view.change_value(self._model2view_map[widget], value)
+    def model_changed(self, model, entryname, value):
+        print "model", self, model, entryname, value
+        self._view.change_value(self._model2view_map[model][entryname], value)
         

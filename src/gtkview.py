@@ -56,19 +56,21 @@ class MyView(GtkView):
 class MyPresenter(Presenter):
     def __init__(self, model, view):
         super(MyPresenter, self).__init__(model, view)
-        self.easy_bind("entry", "text")
-        self.easy_bind("spinbutton", "weight")
+        self.easy_bind("entry", model['default'], "text")
+        self.easy_bind("spinbutton", model['default'], "weight")
         
-        self._model.text = "test"
-        self._model.weight = 80
+        self._model['default'].text = "test"
+        self._model['default'].weight = 80
     
 from gtkcustom import CustomEntry
 if __name__ == '__main__':    
     win = Gtk.Window()
     
     custom_widget_types = [CustomEntry]
-    extra_bind_op={CustomEntry : lambda obj: BindOP(partial(obj.connect, "activate"), obj.get_text, obj.set_text)}
-    obj = MyPresenter(MyModel(), MyView('main.glade', custom_widget_types, extra_bind_op))
+    extra_bind_op={CustomEntry : lambda obj: BindOP(partial(obj.connect, "changed"), obj.get_text, obj.set_text)}
+    view = MyView('main.glade', custom_widget_types, extra_bind_op)
+    model = {'default' : MyModel()}
+    obj = MyPresenter(model, view)
         
     win.add(obj._view.top)
     win.show_all()    

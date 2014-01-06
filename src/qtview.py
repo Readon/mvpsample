@@ -80,11 +80,11 @@ class MyView(QtView):
 class MyPresenter(Presenter):
     def __init__(self, model, view):
         super(MyPresenter, self).__init__(model, view)
-        self.easy_bind("entry", "text")
-        self.easy_bind("spinbutton", "weight")
+        self.easy_bind("entry", model['default'], "text")
+        self.easy_bind("spinbutton", model['default'], "weight")
 #         
-        self._model.text = "test"
-#         self._model.weight = 80
+        self._model['default'].text = "test"
+#         self._model['default'].weight = 80
     
 from PySide import QtGui
 from qtcustom import CustomLineEdit
@@ -94,7 +94,9 @@ if __name__ == '__main__':
     
     custom_widget_types = [CustomLineEdit]
     extra_bind_op={CustomLineEdit : lambda obj: BindOP(qtconnect(obj, "textChanged"), obj.text, obj.setText)}
-    obj = MyPresenter(MyModel(), MyView('main.ui', custom_widget_types, extra_bind_op))
+    view = MyView('main.ui', custom_widget_types, extra_bind_op)
+    model = {'default' : MyModel()}
+    obj = MyPresenter(model, view)
     obj._view.top.show()    
     sys.exit(app.exec_())
     
