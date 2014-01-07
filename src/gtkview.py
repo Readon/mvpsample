@@ -28,10 +28,7 @@ class GtkView(View):
         self.builder.add_from_file(filename)
         self.top = [each for each in self.builder.get_objects() if each.get_parent() is None][0]
                 
-        self.__BIND_OP__.update(extra_bind_op)
-        
-    def get_binding_op(self, widget):
-        return self.__BIND_OP__[type(widget)](widget) 
+        self.update_binding_op(extra_bind_op)
     
     def value_changed(self, widget, *arglist):        
         self.presenter.view_changed(self.widgets[widget], widget._get_value()) 

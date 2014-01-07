@@ -23,6 +23,7 @@ class View(object):
     '''
     Manage widgets in view, which could be auto loaded.
     '''
+    __BIND_OP__ = {}
     def __init__(self):
         self.widgets = {}
         return
@@ -34,9 +35,10 @@ class View(object):
         self.widgets[obj] = name[1:]
         
         opset = self.get_binding_op(obj)
-        setattr(obj, "_connect", opset.connect)
-        setattr(obj, "_get_value", opset.get_value)
-        setattr(obj, "_set_value", opset.set_value)
+        if opset is not None:
+            setattr(obj, "_connect", opset.connect)
+            setattr(obj, "_get_value", opset.get_value)
+            setattr(obj, "_set_value", opset.set_value)
         return obj
     
     def get_object(self, name):
@@ -59,9 +61,16 @@ class View(object):
         
     def value_changed(self, widget):
         raise Exception("You have to implement get_object function in Loader's subclass!")
-        
+            
     def get_binding_op(self, widget):
-        raise Exception("You have to implement get_binding_op function in Loader's subclass!")
+        widgettype = type(widget) 
+        if widgettype in self.__BIND_OP__:
+            return self.__BIND_OP__[widgettype](widget)
+        return None
+    
+    def update_binding_op(self, opdict):
+        self.__BIND_OP__.update(opdict)
+        return self.__BIND_OP__
    
 class Presenter(object):
     '''

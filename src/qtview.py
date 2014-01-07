@@ -49,14 +49,11 @@ class QtView(View, Qt.QWidget):
         
         setattr(self, "_" + self.top.objectName(), self.top)
         self.widgets[self.top] = self.top.objectName()
-         
-        self.__BIND_OP__.update(extra_bind_op)
+        
+        self.update_binding_op(extra_bind_op)
         
     def get_object(self, name):
         return self.top.findChild(Qt.QWidget, name)
-    
-    def get_binding_op(self, widget):
-        return self.__BIND_OP__[type(widget)](widget)
     
     def value_changed(self, *arglist):
         widget = self.sender()   
