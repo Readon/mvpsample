@@ -59,9 +59,10 @@ class QtView(View, Qt.QWidget):
         widget = self.sender()   
         self.presenter.view_changed(self.widgets[widget], widget._get_value())
     
-from mvp import Model, Presenter    
+from mvp import Presenter
+from traitsmodel import TraitsModel
 from traits.api import Float, String
-class MyModel(Model):    
+class MyModel(TraitsModel):
     weight = Float(90.0)
     text = String("hello")
     

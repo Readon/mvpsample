@@ -5,20 +5,38 @@ Created on 2013-12-14
 @copyright: reserved
 @note: Supervising Controller Model-View-Presenter Pattern
 '''
-from traits.api import HasTraits
-class Model(HasTraits):
+
+
+class Model():
     '''
     Save & manage data.
     '''
     def __init__(self):
         return
-    
+
+
 class BindOP(object):
     def __init__(self, conn_func, get_func, set_func):
         self.connect = conn_func
         self.get_value = get_func
         self.set_value = set_func
-        
+
+import inspect
+
+
+def mixin_to(cls):
+    def f(fn):
+        if inspect.isfunction(fn):
+            setattr(cls, fn.func_name, fn)
+        elif inspect.isclass(fn):
+            for name in dir(fn):
+                attr = getattr(fn, name)
+                if inspect.ismethod(attr):
+                    setattr(cls, name, attr.im_func)
+        return fn
+    return f
+
+
 class View(object):
     '''
     Manage widgets in view, which could be auto loaded.
@@ -71,7 +89,8 @@ class View(object):
     def update_binding_op(self, opdict):
         self.__BIND_OP__.update(opdict)
         return self.__BIND_OP__
-   
+
+
 class Presenter(object):
     '''
     Bind parts of widgets and model entries specified.

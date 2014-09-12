@@ -33,10 +33,11 @@ class GtkView(View):
     def value_changed(self, widget, *arglist):        
         self.presenter.view_changed(self.widgets[widget], widget._get_value()) 
 
-from mvp import Model, Presenter    
-from traits.api import Float, String
-class MyModel(Model):    
-    weight = Float(90.0)
+from mvp import Presenter
+from traitsmodel import TraitsModel
+from traits.api import Range, String
+class MyModel(TraitsModel):
+    weight = Range(0,90)
     text = String("hello")
     
     def __init__(self):
@@ -57,7 +58,7 @@ class MyPresenter(Presenter):
         self.easy_bind("spinbutton", model['default'], "weight")
         
         self._model['default'].text = "test"
-        self._model['default'].weight = 80
+        self._model['default'].weight = 80              
     
 from gtkcustom import CustomEntry
 if __name__ == '__main__':    
