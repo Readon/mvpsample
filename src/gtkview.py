@@ -97,21 +97,23 @@ class MyPresenter(Presenter):
     def __init__(self, model, view):
         super(MyPresenter, self).__init__(model, view)
 
-        self._bindings += [Binding(view, "entry", model['default'], "text")]
-        self._bindings += [Binding(view, "entry_copy", model['default'], "text")]
-        self._bindings += [Binding(view, "spinbutton", model['default'], "weight")]
-        self._bindings += [Binding(view, "dspinbtn", model['default'], "weight")]
-
-        self.unbind_all()
-
-        self._bindings += [Binding(view, "entry", model['default'], "text")]
-        self._bindings += [Binding(view, "entry_copy", model['default'], "text")]
-        self._bindings += [Binding(view, "spinbutton", model['default'], "weight")]
-        self._bindings += [Binding(view, "dspinbtn", model['default'], "weight")]
-        
         self._model['default'].text = "test"
-        self._model['default'].weight = 80              
-    
+        self._model['default'].weight = 80
+
+    def bind_all(self):
+        self._bindings += [Binding(self._view, "entry", self._model['default'], "text")]
+        self._bindings += [Binding(self._view, "entry_copy", self._model['default'], "text")]
+        self._bindings += [Binding(self._view, "spinbutton", self._model['default'], "weight")]
+        self._bindings += [Binding(self._view, "dspinbtn", self._model['default'], "weight")]
+
+
+class SimplePresenter(Presenter):
+    def bind_all(self):
+        self._bindings += [Binding(self._view, "entry", self._model, "text")]
+        self._bindings += [Binding(self._view, "entry_copy", self._model, "text")]
+        self._bindings += [Binding(self._view, "spinbutton", self._model, "weight")]
+        self._bindings += [Binding(self._view, "dspinbtn", self._model, "weight")]
+
 from gtkcustom import CustomEntry
 if __name__ == '__main__':    
     win = Gtk.Window()
@@ -125,5 +127,19 @@ if __name__ == '__main__':
     win.add(view.get_topview())
     win.show_all()    
     win.connect("delete-event", Gtk.main_quit)
+
+    #have to unbind before delete the presenter.
+    obj.unbind_all()
+    del obj
+
+    #presenter could accept single model
+    model = model['default']
+    obj = SimplePresenter(model, view)
+
+    #change model is possible when model has been changed.
+    model1 = MyModel()
+    model1.text = "NB"
+    model1.weight = 88
+    obj.change_model(model1)
     
     Gtk.main()

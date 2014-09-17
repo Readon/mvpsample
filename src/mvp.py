@@ -89,8 +89,8 @@ class View(Bindable):
         return ops is not None
 
     def prepare_objects(self):
-        raise Exception("You have to implement get_object function in Loader's subclass!")
-        return []
+        raise Exception("You have to implement prepare_object function in Loader's subclass!")
+        return
     
     def get_object(self, name):
         raise Exception("You have to implement get_object function in Loader's subclass!")
@@ -130,11 +130,21 @@ class Presenter(object):
         self._model = model
         self._view = view
         self._bindings = []
+        self.bind_all()
+
+    def bind_all(self):
+        raise Exception("You have to implement prepare_object function in Loader's subclass!")
+        return
 
     def unbind_all(self):
         for each in self._bindings:
             each.unbind()
         self._bindings = []
+
+    def change_model(self, model):
+        self.unbind_all()
+        self._model = model
+        self.bind_all()
 
 if __name__ == '__main__':
     pass
