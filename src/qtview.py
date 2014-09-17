@@ -124,6 +124,13 @@ class MyPresenter(Presenter):
         self._bindings += [Binding(view, "spinbutton", model['default'], "weight")]
         self._bindings += [Binding(view, "dspinbtn", model['default'], "weight")]
 
+        self.unbind_all()
+
+        self._bindings += [Binding(view, "entry", model['default'], "text")]
+        self._bindings += [Binding(view, "entry_copy", model['default'], "text")]
+        self._bindings += [Binding(view, "spinbutton", model['default'], "weight")]
+        self._bindings += [Binding(view, "dspinbtn", model['default'], "weight")]
+
         self._model['default'].text = "test"
         self._model['default'].weight = 80
     
@@ -134,7 +141,7 @@ if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     
     custom_widgets = [CustomLineEdit]
-    extra_ops = {CustomLineEdit: TextOps}
+    extra_ops = {CustomLineEdit: TextOps, Qt.QDoubleSpinBox: SpinOps}
     view = MyView('main.ui', custom_widgets, extra_ops)
     model = {'default': MyModel()}
     obj = MyPresenter(model, view)

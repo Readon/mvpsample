@@ -34,10 +34,10 @@ class Binding():
             self._model_convertion = model.connect(entry_name, self.update_view)
         return
 
-    def __del__(self):
-        if isinstance(self._view, Bindable):
+    def unbind(self):
+        if self._view.is_bindable(self._widget_name):
             self._view.disconnect(self._widget_name, self.update_model)
-        if isinstance(self._model, Bindable):
+        if self._model.is_bindable(self._entry_name):
             self._model.disconnect(self._entry_name, self.update_view)
         return
 
@@ -124,6 +124,11 @@ class Presenter(object):
     def __init__(self, model, view):
         self._model = model
         self._view = view
+        self._bindings = []
+
+    def unbind_all(self):
+        for each in self._bindings:
+            each.unbind()
         self._bindings = []
 
 if __name__ == '__main__':
