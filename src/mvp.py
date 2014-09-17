@@ -66,8 +66,8 @@ class ViewOperations(object):
     set_func_name = ""
 
     @staticmethod
-    def convertion(args):
-        return args[0]
+    def convertion(*args):
+        return args
 
 
 class View(Bindable):

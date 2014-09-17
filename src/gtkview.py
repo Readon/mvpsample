@@ -11,7 +11,6 @@ try:
 except:    
     raise Exception("Install Gtk & PyGObject first.")
 from mvp import View as Base, ViewOperations
-from functools import partial
 
 
 class GtkOps(ViewOperations):
@@ -30,6 +29,7 @@ class SpinOps(GtkOps):
     signal = "output"
     get_func_name = "get_value_as_int"
     set_func_name = "set_value"
+
 
 class View(Base):
     __BIND_OP__ = {
@@ -75,7 +75,7 @@ from traits.api import Range, String
 
 
 class MyModel(Model):
-    weight = Range(0,90)
+    weight = Range(0, 90)
     text = String("hello")
     
     def __init__(self):
