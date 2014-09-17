@@ -28,6 +28,11 @@ class Binding():
         self._model = model
         self._entry_name = entry_name
 
+        value = getattr(self._model, self._entry_name)
+        setattr(self._view, self._widget_name, value)
+        value = getattr(self._view, self._widget_name)
+        setattr(self._model, self._entry_name, value)
+
         if view.is_bindable(widget_name):
             self._view_convertion = view.connect(widget_name, self.update_model)
         if model.is_bindable(entry_name):
