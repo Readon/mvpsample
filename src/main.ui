@@ -27,10 +27,13 @@
      <widget class="CustomLineEdit" name="entry"/>
     </item>
     <item>
+     <widget class="QLineEdit" name="entry_copy"/>
+    </item>
+    <item>
      <widget class="QSpinBox" name="spinbutton"/>
     </item>
     <item>
-     <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+     <widget class="QDoubleSpinBox" name="dspinbtn"/>
     </item>
    </layout>
   </widget>

@@ -1,90 +1,115 @@
-'''
+"""
 Created on 2013-12-14
 
 @author: readon
 @copyright: reserved
 @note: Supervising Controller Model-View-Presenter Pattern
-'''
+"""
 
 
-class Model():
-    '''
+class Bindable(object):
+    def is_bindable(self, entry):
+        return False
+
+    def connect(self, entry, func):
+        return self._convertion
+
+    def disconnect(self, entry, func):
+        return
+
+    def _convertion(self, *args):
+        return args[0]
+
+
+class Binding():
+    def __init__(self, view, widget_name, model, entry_name):
+        self._view = view
+        self._widget_name = widget_name
+        self._model = model
+        self._entry_name = entry_name
+
+        if view.is_bindable(widget_name):
+            self._view_convertion = view.connect(widget_name, self.update_model)
+        if model.is_bindable(entry_name):
+            self._model_convertion = model.connect(entry_name, self.update_view)
+        return
+
+    def __del__(self):
+        if isinstance(self._view, Bindable):
+            self._view.disconnect(self._widget_name, self.update_model)
+        if isinstance(self._model, Bindable):
+            self._model.disconnect(self._entry_name, self.update_view)
+        return
+
+    def update_view(self, event):
+        value = self._model_convertion(event)
+        setattr(self._view, self._widget_name, value)
+        return
+
+    def update_model(self, *args):
+        value = self._view_convertion(*args)
+        setattr(self._model, self._entry_name, value)
+        return
+
+
+class Model(Bindable):
+    """
     Save & manage data.
-    '''
+    """
     def __init__(self):
         return
 
 
-class BindOP(object):
-    def __init__(self, conn_func, get_func, set_func):
-        self.connect = conn_func
-        self.get_value = get_func
-        self.set_value = set_func
+class ViewOperations(object):
+    signal = ""
+    get_func_name = ""
+    set_func_name = ""
 
-import inspect
-
-
-def mixin_to(cls):
-    def f(fn):
-        if inspect.isfunction(fn):
-            setattr(cls, fn.func_name, fn)
-        elif inspect.isclass(fn):
-            for name in dir(fn):
-                attr = getattr(fn, name)
-                if inspect.ismethod(attr):
-                    setattr(cls, name, attr.im_func)
-        return fn
-    return f
+    @staticmethod
+    def convertion(args):
+        return args[0]
 
 
-class View(object):
-    '''
+class View(Bindable):
+    """
     Manage widgets in view, which could be auto loaded.
-    '''
+    """
     __BIND_OP__ = {}
     def __init__(self):
-        self.widgets = {}
+        self._operations = {}
         return
-                
-    def __getattr__(self, name):   
-        #internal attribute should be start with "_"
-        obj = self.get_object(name[1:])
-        setattr(self, "_" + name[1:], obj)
-        self.widgets[obj] = name[1:]
-        
-        opset = self.get_binding_op(obj)
-        if opset is not None:
-            setattr(obj, "_connect", opset.connect)
-            setattr(obj, "_get_value", opset.get_value)
-            setattr(obj, "_set_value", opset.set_value)
-        return obj
+
+    def is_bindable(self, entry):
+        ops = self._operations[entry]
+        return ops is not None
+
+    def prepare_objects(self):
+        raise Exception("You have to implement get_object function in Loader's subclass!")
+        return []
     
     def get_object(self, name):
         raise Exception("You have to implement get_object function in Loader's subclass!")
-        return 
+        return None
     
     def get_topview(self):
-        return self._view.top
-            
-    def set_presenter(self, presenter):
-        self.presenter = presenter
-        
-    def change_value(self, widgetname, value):
-        widget = getattr(self, "_" + widgetname)
-        widget._set_value(value)
-        
-    def bind_signal(self, widgetname):
-        widget = getattr(self, "_" + widgetname)
-        widget._connect(self.value_changed)
-        
-    def value_changed(self, widget):
-        raise Exception("You have to implement get_object function in Loader's subclass!")
-            
-    def get_binding_op(self, widget):
-        widgettype = type(widget) 
-        if widgettype in self.__BIND_OP__:
-            return self.__BIND_OP__[widgettype](widget)
-        return None
+        return self.top
+
+    def add_property(self, name, instance):
+        setattr(self, "_"+name, instance)
+        ops = self.get_binding_ops(instance)
+        self._operations[name] = ops
+
+        if ops is not None:
+            fget = lambda self: getattr(instance, ops.get_func_name)()
+            fset = lambda self, value: getattr(instance, ops.set_func_name)(value)
+            setattr(self.__class__, name, property(fget, fset))
+
+    def get_binding_ops(self, widget):
+        widget_type = type(widget)
+        try:
+            return self.__BIND_OP__[widget_type]
+        except:
+            return None
     
     def update_binding_op(self, opdict):
         self.__BIND_OP__.update(opdict)
@@ -92,32 +117,15 @@ class View(object):
 
 
 class Presenter(object):
-    '''
+    """
     Bind parts of widgets and model entries specified.
     Implement complex business logic.  
-    '''
+    """
     def __init__(self, model, view):
         self._model = model
         self._view = view
-        view.set_presenter(self)
-        self._model2view_map = {}
-        self._view2model_map = {}
-        
-    def easy_bind(self, widgetname, model, entryname):
-        if model not in self._model2view_map:
-            self._model2view_map[model] = {}
-        self._model2view_map[model][entryname] = widgetname
-        self._view2model_map[widgetname] = (model, entryname)
-        
-        model.on_trait_change(self.model_changed, entryname)
-        self._view.bind_signal(widgetname)
-        
-    def view_changed(self, widgetname, value):
-        print "view", widgetname, value
-        model, entryname = self._view2model_map[widgetname]
-        setattr(model, entryname, value)
-        
-    def model_changed(self, model, entryname, value):
-        print "model", self, model, entryname, value
-        self._view.change_value(self._model2view_map[model][entryname], value)
-        
+        self._bindings = []
+
+if __name__ == '__main__':
+    pass
+

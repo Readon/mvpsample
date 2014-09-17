@@ -1,25 +1,22 @@
-'''
+"""
 Created on 2013-12-16
 
 @author: readon
 @copyright: reserved
 @note: View module for Qt backend
-'''       
+"""       
 try:  
     from PySide.QtUiTools import QUiLoader as qloader
     from PySide.QtCore import QFile as qfile
 except:
     raise Exception("Install Qt & PySide first.")
 
-from mvp import View, BindOP
+from mvp import View as Base, ViewOperations
 from PySide import QtGui as Qt
 
-def qtconnect(widget, signalname):
-    signal = getattr(widget, signalname)
-    return signal.connect
 
 class UiLoader(qloader):
-    def __init__(self, custom_widgets_types):
+    def __init__(self, custom_widget_types=[]):
         qloader.__init__(self)
         typedict = {}
         for each in custom_widget_types:
@@ -33,36 +30,78 @@ class UiLoader(qloader):
             widget = qloader.createWidget(self, clsname, parent, name)
         return widget
 
-class QtView(View, Qt.QWidget):
+
+class QtOps(ViewOperations):
+    @staticmethod
+    def convertion(value):
+        return value
+
+
+class TextOps(QtOps):
+    signal = "textChanged"
+    get_func_name = "text"
+    set_func_name = "setText"
+
+
+class SpinOps(QtOps):
+    signal = "valueChanged"
+    get_func_name = "value"
+    set_func_name = "setValue"
+
+
+class View(Base):
     __BIND_OP__ = {
-        Qt.QLineEdit : lambda obj: BindOP(qtconnect(obj, "textChanged"), obj.text, obj.setText),
-        Qt.QSpinBox : lambda obj: BindOP(qtconnect(obj, "valueChanged"), obj.value, obj.setValue),
+        Qt.QLineEdit: TextOps,
+        Qt.QSpinBox: SpinOps,
     }
-    def __init__(self, filename, custom_widget_types = [], extra_bind_op = {}): 
-        View.__init__(self)
-        Qt.QWidget.__init__(self)
+
+    def __init__(self, filename, custom_widget_types=[], extra_bind_op={}):
+        super(View, self).__init__()
         
         pf = qfile(filename)
         pf.open(qfile.ReadOnly)                    
         loader = UiLoader(custom_widget_types)            
         self.top = loader.load(pf)
         
-        setattr(self, "_" + self.top.objectName(), self.top)
-        self.widgets[self.top] = self.top.objectName()
-        
         self.update_binding_op(extra_bind_op)
-        
+        self.prepare_objects()
+
+    def connect(self, entry, func):
+        item = getattr(self, '_'+entry)
+        ops = self._operations[entry]
+        signal = getattr(item, ops.signal)
+        signal.connect(func)
+        return ops.convertion
+
+    def disconnect(self, entry, func):
+        item = getattr(self, '_'+entry)
+        ops = self._operations[entry]
+        signal = getattr(item, ops.signal)
+        signal.disconnect(func)
+        return
+
+    def _traverse_tree(self, node):
+        yield node
+        for child in node.children():
+            for each in self._traverse_tree(child):
+                yield each
+
+    def prepare_objects(self):
+        for each in self._traverse_tree(self.top):
+            name = each.objectName()
+            if len(name) != 0:
+                self.add_property(name, each)
+
     def get_object(self, name):
         return self.top.findChild(Qt.QWidget, name)
+
     
-    def value_changed(self, *arglist):
-        widget = self.sender()   
-        self.presenter.view_changed(self.widgets[widget], widget._get_value())
-    
-from mvp import Presenter
-from traitsmodel import TraitsModel
+from mvp import Presenter, Binding
+from traitsmodel import Model
 from traits.api import Float, String
-class MyModel(TraitsModel):
+
+
+class MyModel(Model):
     weight = Float(90.0)
     text = String("hello")
     
@@ -70,19 +109,23 @@ class MyModel(TraitsModel):
         super(MyModel, self).__init__()
         return
 
-# test for pygobject     
-class MyView(QtView):
+
+class MyView(View):
     def __init__(self, *arglist, **keywords):
         super(MyView, self).__init__(*arglist, **keywords)
-        
+
+
 class MyPresenter(Presenter):
     def __init__(self, model, view):
         super(MyPresenter, self).__init__(model, view)
-        self.easy_bind("entry", model['default'], "text")
-        self.easy_bind("spinbutton", model['default'], "weight")
-#         
+
+        self._bindings += [Binding(view, "entry", model['default'], "text")]
+        self._bindings += [Binding(view, "entry_copy", model['default'], "text")]
+        self._bindings += [Binding(view, "spinbutton", model['default'], "weight")]
+        self._bindings += [Binding(view, "dspinbtn", model['default'], "weight")]
+
         self._model['default'].text = "test"
-#         self._model['default'].weight = 80
+        self._model['default'].weight = 80
     
 from PySide import QtGui
 from qtcustom import CustomLineEdit
@@ -90,11 +133,10 @@ import sys
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     
-    custom_widget_types = [CustomLineEdit]
-    extra_bind_op={CustomLineEdit : lambda obj: BindOP(qtconnect(obj, "textChanged"), obj.text, obj.setText)}
-    view = MyView('main.ui', custom_widget_types, extra_bind_op)
-    model = {'default' : MyModel()}
+    custom_widgets = [CustomLineEdit]
+    extra_ops = {CustomLineEdit: TextOps}
+    view = MyView('main.ui', custom_widgets, extra_ops)
+    model = {'default': MyModel()}
     obj = MyPresenter(model, view)
-    obj._view.top.show()    
+    view.get_topview().show()
     sys.exit(app.exec_())
-    
