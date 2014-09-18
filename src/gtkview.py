@@ -20,7 +20,7 @@ class GtkOps(ViewOperations):
 
 
 class TextOps(GtkOps):
-    signal = "activate"
+    signal = "changed"
     get_func_name = "get_text"
     set_func_name = "set_text"
 
@@ -70,13 +70,16 @@ class View(Base):
                 self.add_property(name, each)
 
 from mvp import Presenter, Binding
-from traitsmodel import Model
-from traits.api import Range, String
+#from traitsmodel import Model
+#from traits.api import String, Float
+from eventmodel import Model
 
 
 class MyModel(Model):
-    weight = Range(0, 90)
-    text = String("hello")
+    #weight = Float(80)
+    #text = String("hello")
+    weight = 80
+    text = "hello"
     
     def __init__(self):
         super(MyModel, self).__init__()
@@ -115,17 +118,17 @@ class SimplePresenter(Presenter):
         self._bindings += [Binding(self._view, "dspinbtn", self._model, "weight")]
 
 from gtkcustom import CustomEntry
-if __name__ == '__main__':    
+if __name__ == '__main__':
     win = Gtk.Window()
-    
+
     custom_widgets = [CustomEntry]
     extra_ops = {CustomEntry: TextOps}
     view = MyView('main.glade', custom_widgets, extra_ops)
     model = {'default': MyModel()}
     obj = MyPresenter(model, view)
-        
+
     win.add(view.get_topview())
-    win.show_all()    
+    win.show_all()
     win.connect("delete-event", Gtk.main_quit)
 
     #have to unbind before delete the presenter.
@@ -141,5 +144,5 @@ if __name__ == '__main__':
     model1.text = "NB"
     model1.weight = 88
     obj.change_model(model1)
-    
+
     Gtk.main()

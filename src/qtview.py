@@ -97,13 +97,13 @@ class View(Base):
 
     
 from mvp import Presenter, Binding
-from traitsmodel import Model
-from traits.api import Float, String
+from eventmodel import Model
+#from traits.api import Float, String
 
 
 class MyModel(Model):
-    weight = Float(90.0)
-    text = String("hello")
+    weight = 90.0
+    text = "hello"
     
     def __init__(self):
         super(MyModel, self).__init__()
