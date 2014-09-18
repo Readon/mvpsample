@@ -1,5 +1,5 @@
 
-from eventize import handle, Attribute
+from eventize import on_change
 from mvp import Model as Base
 
 
@@ -14,18 +14,20 @@ class Model(Base):
         return not callable(item)
 
     def connect(self, entry, action):
-        if entry not in self._connections:
-            connection = handle(self, entry)
-            self._connections[entry] = connection
-        else:
+        try:
             connection = self._connections[entry]
-        connection.on_change += action
+        except:
+            connection = on_change(self, entry)
+            self._connections[entry] = connection
+        connection += action
         return self._convertion
 
     def disconnect(self, entry, action):
-        if entry in self._connections:
+        try:
             connection = self._connections[entry]
-            connection.on_change -= action
+            connection -= action
+        except:
+            pass
         return
 
     def _convertion(self, event):
@@ -33,13 +35,15 @@ class Model(Base):
 
 if __name__ == '__main__':
     class MyModel(Model):
-        text = ""
+        text = "oo"
 
     model = MyModel()
     func = None
 
     def foo(event):
+        print "trigger"
         print func(event)
+        setattr(model, "text", func(event))
 
     if model.is_bindable("text"):
         func = model.connect("text", foo)
