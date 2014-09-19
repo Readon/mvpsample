@@ -70,16 +70,17 @@ class View(Base):
                 self.add_property(name, each)
 
 from mvp import Presenter, Binding
-from traitsmodel import Model
-from traits.api import String, Float, Range
-#from eventmodel import Model
+#from traitsmodel import Model
+#from traits.api import String, Float, Range
+from eventmodel import Model, Range
+from eventize import Attribute
 
 
 class MyModel(Model):
+    #weight = Range(0, 90)
+    #text = String("hello")
     weight = Range(0, 90)
-    text = String("hello")
-    #weight = 80
-    #text = "hello"
+    text = Attribute("hello")
     
     def __init__(self):
         super(MyModel, self).__init__()
@@ -142,7 +143,7 @@ if __name__ == '__main__':
     #change model is possible when model has been changed.
     model1 = MyModel()
     model1.text = "NB"
-    model1.weight = 88
+    setattr(model1, "weight", 99)
     obj.change_model(model1)
 
     Gtk.main()
