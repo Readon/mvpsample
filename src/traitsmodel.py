@@ -23,12 +23,14 @@ class Model(HasTraits, Base):
         return event
 
 
-from traits.api import String
+from traits.api import String, Range
 if __name__ == '__main__':
     class MyModel(Model):
+        weight = Range(0, 90)
         text = String("")
 
     model = MyModel()
+    model1 = MyModel()
     func = None
 
     def foo(event):
@@ -37,4 +39,15 @@ if __name__ == '__main__':
     if model.is_bindable("text"):
         func = model.connect("text", foo)
     setattr(model, "text", "123")
-    print model.text
+    setattr(model, "weight", 80)
+
+    if model1.is_bindable("text"):
+        func = model1.connect("text", foo)
+    setattr(model1, "text", "456")
+    setattr(model1, "weight", 81)
+
+    try:
+        setattr(model1, "weight", 100)
+        print "check failed"
+    except:
+        print "check succeed."

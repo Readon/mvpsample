@@ -62,13 +62,21 @@ if __name__ == '__main__':
     func = None
 
     def foo(event):
-        print "trigger"
         print func(event)
-        setattr(model, "text", func(event))
 
     if model.is_bindable("weight"):
         func = model.connect("weight", foo)
     setattr(model, "text", "123")
     setattr(model, "weight", 80)
+
+    if model1.is_bindable("text"):
+        func = model1.connect("text", foo)
+    setattr(model1, "text", "456")
     setattr(model1, "weight", 81)
-    print model.text
+
+    try:
+        setattr(model1, "weight", 100)
+        print "check failed."
+    except:
+        print "check succeed."
+    print model1.text
