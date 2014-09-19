@@ -46,7 +46,8 @@ class Binding():
 
     def update_view(self, event):
         value = self._model_convertion(event)
-        setattr(self._view, self._widget_name, value)
+        if value != getattr(self._view, self._widget_name):
+            setattr(self._view, self._widget_name, value)
         return
 
     def update_model(self, *args):
