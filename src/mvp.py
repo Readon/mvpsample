@@ -51,7 +51,10 @@ class Binding():
 
     def update_model(self, *args):
         value = self._view_convertion(*args)
-        setattr(self._model, self._entry_name, value)
+        try:
+            setattr(self._model, self._entry_name, value)
+        except:
+            setattr(self._view, self._widget_name, getattr(self._model, self._entry_name))
         return
 
 

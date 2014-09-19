@@ -27,7 +27,7 @@ class TextOps(GtkOps):
 
 class SpinOps(GtkOps):
     signal = "output"
-    get_func_name = "get_value_as_int"
+    get_func_name = "get_value"
     set_func_name = "set_value"
 
 
@@ -70,16 +70,16 @@ class View(Base):
                 self.add_property(name, each)
 
 from mvp import Presenter, Binding
-#from traitsmodel import Model
-#from traits.api import String, Float
-from eventmodel import Model
+from traitsmodel import Model
+from traits.api import String, Float, Range
+#from eventmodel import Model
 
 
 class MyModel(Model):
-    #weight = Float(80)
-    #text = String("hello")
-    weight = 80
-    text = "hello"
+    weight = Range(0, 90)
+    text = String("hello")
+    #weight = 80
+    #text = "hello"
     
     def __init__(self):
         super(MyModel, self).__init__()
