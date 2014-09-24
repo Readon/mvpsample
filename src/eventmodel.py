@@ -1,5 +1,5 @@
 
-from eventize import on_change, Attribute
+from eventize import handle, on_change, Attribute
 from eventize.attribute import Subject, OnChangeHandler
 from mvp import Model as Base
 
@@ -18,7 +18,9 @@ class Model(Base):
         try:
             connection = self._connections[entry]
         except:
-            connection = on_change(self, entry)
+            item = getattr(type(self), entry)
+            handle_type = item.__class__
+            connection = on_change(self, entry, handle_type)
             self._connections[entry] = connection
         connection += action
         return self._convertion
@@ -36,15 +38,13 @@ class Model(Base):
 
 
 class Range(Attribute):
+    on_change = OnChangeHandler()
     def __init__(self, min_, max_, default=None):
-        if default is not None:
-            super(Range, self).__init__(default)
-        else:
-            super(Range, self).__init__(min_)
+        super(Range, self).__init__(default or min_)
 
         self._min = min_
         self._max = max_
-        self.on_change = OnChangeHandler(self._validate)
+        self.on_change += self._validate
 
     def _validate(self, event):
         print event.value, self._max, self._min
@@ -55,7 +55,7 @@ class Range(Attribute):
 if __name__ == '__main__':
     class MyModel(Model):
         weight = Range(1, 90)
-        text = "oo"
+        text = Attribute("oo")
 
     model = MyModel()
     model1 = MyModel()
@@ -69,8 +69,8 @@ if __name__ == '__main__':
     setattr(model, "text", "123")
     setattr(model, "weight", 80)
 
-    if model1.is_bindable("text"):
-        func = model1.connect("text", foo)
+    if model1.is_bindable("weight"):
+        func = model1.connect("weight", foo)
     setattr(model1, "text", "456")
     setattr(model1, "weight", 81)
 
