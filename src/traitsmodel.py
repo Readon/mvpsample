@@ -1,5 +1,5 @@
 
-from traits.api import HasTraits, TraitType
+from traits.api import HasTraits, String, Int, Float, Range
 from mvp import Model as Base
 
 

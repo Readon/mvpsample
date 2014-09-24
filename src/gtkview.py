@@ -70,17 +70,13 @@ class View(Base):
                 self.add_property(name, each)
 
 from mvp import Presenter, Binding
-#from traitsmodel import Model
-#from traits.api import String, Float, Range
-from eventmodel import Model, Range
-from eventize import Attribute
+from traitsmodel import Model, Range, String, Float, Int
+#from eventmodel import Model, Range, String, Float, Int
 
 
 class MyModel(Model):
-    #weight = Range(0, 90)
-    #text = String("hello")
     weight = Range(0, 90)
-    text = Attribute("hello")
+    text = String("hello")
     
     def __init__(self):
         super(MyModel, self).__init__()

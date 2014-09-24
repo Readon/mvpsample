@@ -1,6 +1,9 @@
 
-from eventize import handle, on_change, Attribute
-from eventize.attribute import Subject, OnChangeHandler
+from eventize import on_change, Attribute
+from eventize import Attribute as String
+from eventize import Attribute as Int
+from eventize import Attribute as Float
+from eventize.attribute import OnChangeHandler
 from mvp import Model as Base
 
 
