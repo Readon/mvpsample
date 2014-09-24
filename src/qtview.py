@@ -97,14 +97,16 @@ class View(Base):
 
     
 from mvp import Presenter, Binding
-#from eventmodel import Model
-from traitsmodel import Model
-from traits.api import Range, String
+from eventmodel import Model, Range
+from eventize import Attribute
+#from traitsmodel import Model
+#from traits.api import Range, String
 
 
 class MyModel(Model):
     weight = Range(0.0, 90.0)
-    text = String("hello")
+    #text = String("hello")
+    text = Attribute("hello")
     
     def __init__(self):
         super(MyModel, self).__init__()

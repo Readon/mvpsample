@@ -143,7 +143,7 @@ if __name__ == '__main__':
     #change model is possible when model has been changed.
     model1 = MyModel()
     model1.text = "NB"
-    setattr(model1, "weight", 99)
+    setattr(model1, "weight", 88)
     obj.change_model(model1)
 
     Gtk.main()

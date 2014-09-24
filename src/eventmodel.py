@@ -47,9 +47,9 @@ class Range(Attribute):
         self.on_change += self._validate
 
     def _validate(self, event):
-        print event.value, self._max, self._min
         if event.value > self._max or event.value < self._min:
-            raise Exception('Value out of Range (%d, %d)' % (self._min, self._max))
+            setattr(event.subject, event.name, event.old_value)
+            raise Exception('Value %d out of Range (%d, %d)' % (event.value, self._min, self._max))
 
 
 if __name__ == '__main__':
