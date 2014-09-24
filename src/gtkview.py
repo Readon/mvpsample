@@ -75,7 +75,7 @@ from traitsmodel import Model, Range, String, Float, Int
 
 
 class MyModel(Model):
-    weight = Range(0, 90)
+    weight = Range(0.0, 90.0)
     text = String("hello")
     
     def __init__(self):
