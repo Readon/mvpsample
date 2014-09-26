@@ -58,6 +58,12 @@ class Binding():
             setattr(self._view, self._widget_name, getattr(self._model, self._entry_name))
         return
 
+    def set_view_convertion(self, function):
+        self._view_convertion = function
+    
+    def set_model_convertion(self, function):
+        self._model_convertion = function
+
 
 class Model(Bindable):
     """
