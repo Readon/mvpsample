@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Created on 2013-12-16
 
@@ -45,10 +46,10 @@ class View(Base):
         for each in custom_widget_types:
             GObject.type_register(each)
         self.builder.add_from_file(filename)
-        self.top = [each for each in self.builder.get_objects() if each.get_parent() is None][0]
                 
         self.update_binding_op(extra_bind_op)
-        self.prepare_objects()
+        objects = self.prepare_objects()
+        self.top = [each for each in objects if isinstance(each, Gtk.Container) and each.get_parent() is None][0]
         self.signal_handlers = {}
 
     def connect(self, entry, func):
@@ -64,10 +65,15 @@ class View(Base):
         return
 
     def prepare_objects(self):
-        for each in self.builder.get_objects():
+        objects = self.builder.get_objects()
+        for each in objects:
+            if not isinstance(each, Gtk.Buildable):
+                continue
+
             name = Gtk.Buildable.get_name(each)
             if len(name) != 0:
                 self.add_property(name, each)
+        return objects
 
 from mvp import Presenter, Binding
 from traitsmodel import Model, Range, String, Float, Int
