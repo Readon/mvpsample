@@ -55,15 +55,17 @@ class View(Base):
         Qt.QSpinBox: SpinOps,
     }
 
-    def __init__(self, filename, custom_widget_types=[], extra_bind_op={}):
+    def __init__(self, filename=None, custom_widget_types=[], extra_bind_op={}):
         super(View, self).__init__()
-        
-        pf = qfile(filename)
-        pf.open(qfile.ReadOnly)                    
-        loader = UiLoader(custom_widget_types)            
-        self.top = loader.load(pf)
-        
+
         self.update_binding_op(extra_bind_op)
+        if filename is None:
+            return
+
+        pf = qfile(filename)
+        pf.open(qfile.ReadOnly)
+        loader = UiLoader(custom_widget_types)
+        self.top = loader.load(pf)
         self.prepare_objects()
 
     def connect(self, entry, func):

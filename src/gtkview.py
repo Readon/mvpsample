@@ -38,19 +38,23 @@ class View(Base):
         Gtk.SpinButton: SpinOps,
     }
 
-    def __init__(self, filename, custom_widget_types=[], extra_bind_op={}):
+    def __init__(self, filename=None, custom_widget_types=[], extra_bind_op={}):
         super(View, self).__init__()
+
+        self.signal_handlers = {}
+        for each in custom_widget_types:
+            GObject.type_register(each)
+        self.update_binding_op(extra_bind_op)
+
+        if filename is None:
+            return
 
         self.builder = Gtk.Builder()
         self.get_object = self.builder.get_object
-        for each in custom_widget_types:
-            GObject.type_register(each)
         self.builder.add_from_file(filename)
-                
-        self.update_binding_op(extra_bind_op)
+
         objects = self.prepare_objects()
         self.top = [each for each in objects if isinstance(each, Gtk.Container) and each.get_parent() is None][0]
-        self.signal_handlers = {}
 
     def connect(self, entry, func):
         item = getattr(self, '_'+entry)
