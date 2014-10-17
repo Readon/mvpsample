@@ -124,7 +124,7 @@ class View(Bindable):
         ops = self.get_binding_ops(instance)
         self._operations[name] = ops
 
-        if ops is not None:
+        if ops is not None and not hasattr(self.__class__, name):
             fget = partial(ops.get, inst_name)
             fset = partial(ops.set, inst_name)
             setattr(self.__class__, name, property(fget, fset))
