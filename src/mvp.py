@@ -5,6 +5,7 @@ Created on 2013-12-14
 @copyright: reserved
 @note: Supervising Controller Model-View-Presenter Pattern
 """
+from functools import partial
 
 
 class Bindable(object):
@@ -82,6 +83,16 @@ class ViewOperations(object):
     def convertion(*args):
         return args
 
+    @classmethod
+    def get(cls, name, container):
+        instance = getattr(container, name)
+        return getattr(instance, cls.get_func_name)()
+
+    @classmethod
+    def set(cls, name, container, value):
+        instance = getattr(container, name)
+        return getattr(instance, cls.set_func_name)(value)
+
 
 class View(Bindable):
     """
@@ -108,13 +119,14 @@ class View(Bindable):
         return self.top
 
     def add_property(self, name, instance):
-        setattr(self, "_"+name, instance)
+        inst_name = "_"+name
+        setattr(self, inst_name, instance)
         ops = self.get_binding_ops(instance)
         self._operations[name] = ops
 
         if ops is not None:
-            fget = lambda self: getattr(instance, ops.get_func_name)()
-            fset = lambda self, value: getattr(instance, ops.set_func_name)(value)
+            fget = partial(ops.get, inst_name)
+            fset = partial(ops.set, inst_name)
             setattr(self.__class__, name, property(fget, fset))
 
     def get_binding_ops(self, widget):
@@ -141,8 +153,7 @@ class Presenter(object):
         self.bind_all()
 
     def bind_all(self):
-        raise Exception("You have to implement prepare_object function in Loader's subclass!")
-        return
+        pass
 
     def unbind_all(self):
         for each in self._bindings:
