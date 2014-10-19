@@ -22,48 +22,74 @@ class Bindable(object):
         return args[0]
 
 
-class Binding():
-    def __init__(self, view, widget_name, model, entry_name):
-        self._view = view
-        self._widget_name = widget_name
-        self._model = model
-        self._entry_name = entry_name
+class UniDirBinding(object):
+    def __init__(self, container, name, target_container, target_name, update_args=0, retreatable=False):
+        update_functions = [self._update, self._update_1, self._update_2, self._update_3, self._update_4]
 
+        self.container = container
+        self.name = name
+        self.tar_container = target_container
+        self.tar_name = target_name
+
+        self.update = update_functions[update_args]
+        self.unbind = partial(container.disconnect, name, self.update)
+        self.retreatable = retreatable
+
+        if container.is_bindable(name):
+            self._conversion = container.connect(name, self.update)
+
+    def _real_update(self, value):
+        if value != getattr(self.container, self.name):
+            try:
+                setattr(self.tar_container, self.tar_name, value)
+            except:
+                if self.retreatable:
+                    value = getattr(self.tar_container, self.tar_name)
+                    setattr(self.container, self.name, value)
+
+    def _update(self, *args):
+        value = self._conversion(*args)
+        self._real_update(value)
+
+    def _update_1(self, new):
+        value = self._conversion(new)
+        self._real_update(value)
+
+    def _update_2(self, name, new):
+        value = self._conversion(name, new)
+        self._real_update(value)
+
+    def _update_3(self, container, name, new):
+        value = self._conversion(container, name, new)
+        self._real_update(value)
+
+    def _update_4(self, container, name, old, new):
+        value = self._conversion(container, name, old, new)
+        self._real_update(value)
+
+    def set_conversion(self, function):
+        self._conversion = function
+
+
+class Binding(object):
+    def __init__(self, view, widget_name, model, entry_name):
         value = getattr(model, entry_name)
         setattr(view, widget_name, value)
 
-        if view.is_bindable(widget_name):
-            self._view_conversion = view.connect(widget_name, self.update_model)
-        if model.is_bindable(entry_name):
-            self._model_conversion = model.connect(entry_name, self.update_view)
+        self._model_bind = UniDirBinding(model, entry_name, view, widget_name, update_args=1)
+        self._view_bind = UniDirBinding(view, widget_name, model, entry_name, retreatable=True)
         return
 
     def unbind(self):
-        if self._view.is_bindable(self._widget_name):
-            self._view.disconnect(self._widget_name, self.update_model)
-        if self._model.is_bindable(self._entry_name):
-            self._model.disconnect(self._entry_name, self.update_view)
-        return
-
-    def update_view(self, event):
-        value = self._model_conversion(event)
-        if value != getattr(self._view, self._widget_name):
-            setattr(self._view, self._widget_name, value)
-        return
-
-    def update_model(self, *args):
-        value = self._view_conversion(*args)
-        try:
-            setattr(self._model, self._entry_name, value)
-        except:
-            setattr(self._view, self._widget_name, getattr(self._model, self._entry_name))
+        self._view_bind.unbind()
+        self._model_bind.unbind()
         return
 
     def set_view_conversion(self, function):
-        self._view_conversion = function
+        self._view_bind.set_conversion(function)
     
     def set_model_conversion(self, function):
-        self._model_conversion = function
+        self._model_bind.set_conversion(function)
 
 
 class Model(Bindable):
