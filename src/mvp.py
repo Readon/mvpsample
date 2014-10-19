@@ -13,12 +13,12 @@ class Bindable(object):
         return False
 
     def connect(self, entry, func):
-        return self._convertion
+        return self._conversion
 
     def disconnect(self, entry, func):
         return
 
-    def _convertion(self, *args):
+    def _conversion(self, *args):
         return args[0]
 
 
@@ -33,9 +33,9 @@ class Binding():
         setattr(view, widget_name, value)
 
         if view.is_bindable(widget_name):
-            self._view_convertion = view.connect(widget_name, self.update_model)
+            self._view_conversion = view.connect(widget_name, self.update_model)
         if model.is_bindable(entry_name):
-            self._model_convertion = model.connect(entry_name, self.update_view)
+            self._model_conversion = model.connect(entry_name, self.update_view)
         return
 
     def unbind(self):
@@ -46,24 +46,24 @@ class Binding():
         return
 
     def update_view(self, event):
-        value = self._model_convertion(event)
+        value = self._model_conversion(event)
         if value != getattr(self._view, self._widget_name):
             setattr(self._view, self._widget_name, value)
         return
 
     def update_model(self, *args):
-        value = self._view_convertion(*args)
+        value = self._view_conversion(*args)
         try:
             setattr(self._model, self._entry_name, value)
         except:
             setattr(self._view, self._widget_name, getattr(self._model, self._entry_name))
         return
 
-    def set_view_convertion(self, function):
-        self._view_convertion = function
+    def set_view_conversion(self, function):
+        self._view_conversion = function
     
-    def set_model_convertion(self, function):
-        self._model_convertion = function
+    def set_model_conversion(self, function):
+        self._model_conversion = function
 
 
 class Model(Bindable):
@@ -80,7 +80,7 @@ class ViewOperations(object):
     set_func_name = ""
 
     @staticmethod
-    def convertion(*args):
+    def conversion(*args):
         return args
 
     @classmethod

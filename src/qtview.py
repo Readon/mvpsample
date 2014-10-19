@@ -33,7 +33,7 @@ class UiLoader(qloader):
 
 class QtOps(ViewOperations):
     @staticmethod
-    def convertion(value):
+    def conversion(value):
         return value
 
 
@@ -73,7 +73,7 @@ class View(Base):
         ops = self._operations[entry]
         signal = getattr(item, ops.signal)
         signal.connect(func)
-        return ops.convertion
+        return ops.conversion
 
     def disconnect(self, entry, func):
         item = getattr(self, '_'+entry)

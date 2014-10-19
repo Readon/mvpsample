@@ -16,7 +16,7 @@ from mvp import View as Base, ViewOperations
 
 class GtkOps(ViewOperations):
     @staticmethod
-    def convertion(instance, get_func_name):
+    def conversion(instance, get_func_name):
         return getattr(instance, get_func_name)()
 
 
@@ -60,7 +60,7 @@ class View(Base):
         item = getattr(self, '_'+entry)
         ops = self._operations[entry]
         self.signal_handlers[entry] = item.connect(ops.signal, func, ops.get_func_name)
-        return ops.convertion
+        return ops.conversion
 
     def disconnect(self, entry, func):
         item = getattr(self, '_'+entry)

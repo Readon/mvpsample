@@ -26,7 +26,7 @@ class Model(Base):
             connection = on_change(self, entry, handle_type)
             self._connections[entry] = connection
         connection += action
-        return self._convertion
+        return self._conversion
 
     def disconnect(self, entry, action):
         try:
@@ -36,7 +36,7 @@ class Model(Base):
             pass
         return
 
-    def _convertion(self, event):
+    def _conversion(self, event):
         return event.value
 
 

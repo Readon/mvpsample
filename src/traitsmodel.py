@@ -13,13 +13,13 @@ class Model(HasTraits, Base):
 
     def connect(self, entry, action):
         self.on_trait_change(action, entry)
-        return self._convertion
+        return self._conversion
 
     def disconnect(self, entry, action):
         self.on_trait_change(action, entry, remove=True)
         return
 
-    def _convertion(self, event):
+    def _conversion(self, event):
         return event
 
 
