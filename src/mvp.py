@@ -23,7 +23,7 @@ class Bindable(object):
 
 
 class UniDirBinding(object):
-    def __init__(self, container, name, target_container, target_name, update_args=0, retreatable=False):
+    def __init__(self, container, name, target_container, target_name, update_args=0, retreatable=False, check=False):
         update_functions = [self._update, self._update_1, self._update_2, self._update_3, self._update_4]
 
         self.container = container
@@ -34,18 +34,20 @@ class UniDirBinding(object):
         self.update = update_functions[update_args]
         self.unbind = partial(container.disconnect, name, self.update)
         self.retreatable = retreatable
+        self.check_change = check
 
-        if container.is_bindable(name):
-            self._conversion = container.connect(name, self.update)
+        self._conversion = container.connect(name, self.update)
 
     def _real_update(self, value):
-        if value != getattr(self.container, self.name):
-            try:
-                setattr(self.tar_container, self.tar_name, value)
-            except:
-                if self.retreatable:
-                    value = getattr(self.tar_container, self.tar_name)
-                    setattr(self.container, self.name, value)
+        if self.check_change and value == getattr(self.tar_container, self.tar_name):
+            return
+
+        try:
+            setattr(self.tar_container, self.tar_name, value)
+        except:
+            if self.retreatable:
+                value = getattr(self.tar_container, self.tar_name)
+                setattr(self.container, self.name, value)
 
     def _update(self, *args):
         value = self._conversion(*args)
@@ -76,7 +78,7 @@ class Binding(object):
         value = getattr(model, entry_name)
         setattr(view, widget_name, value)
 
-        self._model_bind = UniDirBinding(model, entry_name, view, widget_name, update_args=1)
+        self._model_bind = UniDirBinding(model, entry_name, view, widget_name, update_args=1, check=True)
         self._view_bind = UniDirBinding(view, widget_name, model, entry_name, retreatable=True)
         return
 
