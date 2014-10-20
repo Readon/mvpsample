@@ -26,10 +26,10 @@ class UniDirBinding(object):
     def __init__(self, container, name, target_container, target_name, update_args=0, retreatable=False, check=False):
         update_functions = [self._update, self._update_1, self._update_2, self._update_3, self._update_4]
 
-        self.container = container
-        self.name = name
-        self.tar_container = target_container
-        self.tar_name = target_name
+        #self.get_source = partial(getattr, container, name)
+        self.set_source = partial(setattr, container, name)
+        self.get_target = partial(getattr, target_container, target_name)
+        self.set_target = partial(setattr, target_container, target_name)
 
         self.update = update_functions[update_args]
         self.unbind = partial(container.disconnect, name, self.update)
@@ -39,15 +39,15 @@ class UniDirBinding(object):
         self._conversion = container.connect(name, self.update)
 
     def _real_update(self, value):
-        if self.check_change and value == getattr(self.tar_container, self.tar_name):
+        if self.check_change and value == self.get_target():
             return
 
         try:
-            setattr(self.tar_container, self.tar_name, value)
+            self.set_target(value)
         except:
             if self.retreatable:
-                value = getattr(self.tar_container, self.tar_name)
-                setattr(self.container, self.name, value)
+                value = self.get_target()
+                self.set_source(value)
 
     def _update(self, *args):
         value = self._conversion(*args)
