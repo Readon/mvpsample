@@ -79,7 +79,7 @@ class Binding(object):
         setattr(view, widget_name, value)
 
         self._model_bind = UniDirBinding(model, entry_name, view, widget_name, update_args=1, check=True)
-        self._view_bind = UniDirBinding(view, widget_name, model, entry_name, retreatable=True)
+        self._view_bind = UniDirBinding(view, widget_name, model, entry_name, retreatable=True, check=True)
         return
 
     def unbind(self):
