@@ -12,6 +12,7 @@ class Model(HasTraits, Base):
         return entry in self.class_trait_names()
 
     def connect(self, entry, action):
+        print type(action)
         self.on_trait_change(action, entry)
         return self._conversion
 

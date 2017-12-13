@@ -125,7 +125,8 @@ class SimplePresenter(Presenter):
         self._bindings += [Binding(self._view, "dspinbtn", self._model, "weight")]
 
 from gtkcustom import CustomEntry
-if __name__ == '__main__':
+def main():
+    
     win = Gtk.Window()
 
     custom_widgets = [CustomEntry]
@@ -153,3 +154,7 @@ if __name__ == '__main__':
     obj.change_model(model1)
 
     Gtk.main()
+
+
+if __name__ == '__main__':
+    main()

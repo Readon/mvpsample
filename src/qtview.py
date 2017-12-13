@@ -141,7 +141,8 @@ class SimplePresenter(Presenter):
 from PySide import QtGui
 from qtcustom import CustomLineEdit
 import sys
-if __name__ == '__main__':
+
+def main():
     app = QtGui.QApplication(sys.argv)
     
     custom_widgets = [CustomLineEdit]
@@ -165,3 +166,6 @@ if __name__ == '__main__':
     obj.change_model(model1)
 
     sys.exit(app.exec_())
+    
+if __name__ == '__main__':
+    main()
