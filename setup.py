@@ -6,7 +6,7 @@ except ImportError:
     from distutils.core import setup, find_packages
     from distutils.extension import Extension
 
-from nuitka_setup import Nuitka
+#from nuitka_setup import Nuitka
 from pyinstaller_setup import run as pyinstaller_run
 from cython_setup import Cython
 
