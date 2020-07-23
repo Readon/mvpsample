@@ -80,7 +80,8 @@ class View(Base):
         return objects
 
 from mvp import Presenter, Binding
-from traitsmodel import Model, Range, String, Float, Int
+from traitletsmodel import Model, String, Range, Float, Int
+#from traitsmodel import Model, Range, String, Float, Int
 #from eventmodel import Model, Range, String, Float, Int
 
 
