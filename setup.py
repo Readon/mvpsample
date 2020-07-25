@@ -65,11 +65,3 @@ if __name__ == "__main__":
         scripts=[STARTUP_SCRIPT],
         ext_modules=cythonize(extensions),
     )
-
-    # if "build_ext" in ret.have_run.keys():
-    #     print("Clean template files.")
-    #     ret.get_command_obj("build_py").cleanup_templatefiles()
-
-    # if "bdist" in ret.commands:
-    #     BUILD_PATH = ret.get_command_obj("build_py").build_lib
-    #     pyinstaller_run(BUILD_PATH)
