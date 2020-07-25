@@ -48,7 +48,9 @@ def find_python_modules(root, packages):
             continue
 
         for name in os.listdir(dir_):
-            if name.endswith(".py") and name != "__init__.py":
+            if (
+                name.endswith(".py") or name.endswith(".pyd")
+            ) and name != "__init__.py":
                 name = os.path.basename(name)
                 name = os.path.splitext(name)[0]
                 if package:
@@ -57,7 +59,7 @@ def find_python_modules(root, packages):
     return ret
 
 
-def run(app, package_dir, script, imports, excludes, datas):
+def run(package_dir, script, imports, excludes, datas):
     command = [_pyinstaller_script()]
     command += ["--noconfirm"]
 
@@ -79,6 +81,8 @@ def run(app, package_dir, script, imports, excludes, datas):
 
     print(command)
 
+    app = os.path.basename(script)
+    app = os.path.splitext(app)[0]
     dst_path = Path("dist") / app
     delete_path(dst_path)
 

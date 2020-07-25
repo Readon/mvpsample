@@ -10,7 +10,6 @@ except ImportError:
 
 from pyinstaller_setup import run as pyinstaller_run
 from setup import (
-    APP_NAME,
     PACKAGE_DIR,
     PACKAGES,
     STARTUP_SCRIPT,
@@ -21,7 +20,6 @@ from setup import (
 
 if __name__ == "__main__":
     pyinstaller_run(
-        APP_NAME,
         PACKAGE_DIR,
         STARTUP_SCRIPT,
         PACKAGES + RUNTIME_DEPS,
