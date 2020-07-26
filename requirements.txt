@@ -1,0 +1,2 @@
+PyGObject==3.34.0
+traits==5.2.0

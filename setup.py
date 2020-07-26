@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 import os
+import subprocess
+from pkg_resources import parse_requirements
 from collections import defaultdict
 
 try:
@@ -12,16 +14,41 @@ except ImportError:
 from Cython.Build import cythonize
 
 APP_NAME = "MVPSample"
+APP_DESCRIPTION = "Binding Example using MVP Pattern."
+APP_VERSION = "0.2"
+AUTHOR = "Yindong Xiao"
+EMAIL = "xydarcher@uestc.edu.cn"
+
 PACKAGE_DIR = "src"
 PACKAGES = find_packages(PACKAGE_DIR)
 STARTUP_SCRIPT = PACKAGE_DIR + r"\startup.pyw"
 EXCLUDE_PACKAGES = ["PySide", "PyQt", "Tkinter"]
 
-DATA_FILES = ["*.ui", "*.glade"]
-PACKAGE_DATA = {"": DATA_FILES}
+PACKAGE_DATA = {
+    "": ["*.ui", "*.glade"],
+}
 
-RUNTIME_DEPS = ["gi.repository.Gtk", "traitlets"]
-BUILD_DEPS = ["pyinstaller >= 3.3", "cython", "pathlib"]
+REQUIRES_PATH = "requirements.txt"
+
+
+def generate_requirements(dir_):
+    command = ["pipreqs"]
+    command += ["--use-local"]
+    command += ["--savepath", REQUIRES_PATH]
+    command += [dir_]
+
+    subprocess.call(command)
+
+
+if not os.path.exists(REQUIRES_PATH):
+    generate_requirements(PACKAGE_DIR)
+
+
+with open(REQUIRES_PATH) as f:
+    requires = parse_requirements(f.read().splitlines())
+    requirements = [x.name for x in requires]
+RUNTIME_DEPS = ["gi.repository.Gtk", "traitlets"] + requirements
+BUILD_DEPS = ["pyinstaller >= 3.3", "cython", "pathlib", "pipreqs"]
 
 
 def find_python_files(root, packages):
@@ -53,10 +80,10 @@ extensions = create_extensions(PACKAGE_DIR, PACKAGES)
 if __name__ == "__main__":
     ret = setup(
         name=APP_NAME,
-        version="0.1",
-        description="Awg waveform generation and edit application.",
-        author="Yindong Xiao",
-        author_email="xydarcher@uestc.edu.cn",
+        version=APP_VERSION,
+        description=APP_DESCRIPTION,
+        author=AUTHOR,
+        author_email=EMAIL,
         install_requires=RUNTIME_DEPS,
         setup_requires=BUILD_DEPS,
         packages=PACKAGES,

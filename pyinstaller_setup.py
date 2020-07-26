@@ -1,24 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 import os
-from setup import find_python_files
-import sys
-import subprocess
 import shutil
+
+from PyInstaller.__main__ import run as pyinstaller_run
 
 try:
     from pathlib import Path
 except ImportError:
     from pathlib2 import Path
-
-
-def _pyinstaller_script():
-    path = Path(sys.executable).parent
-    if path.name != "Scripts":
-        path = path.joinpath("Scripts")
-    if path.exists():
-        return str(path / "pyinstaller")
-    return "pyinstaller"
 
 
 def copytree(src, dst, symlinks=False, ignore=None):
@@ -59,41 +49,32 @@ def find_python_modules(root, packages):
     return ret
 
 
-def run(package_dir, script, imports, excludes, datas):
-    command = [_pyinstaller_script()]
+def run(app, package_dir, script, imports, excludes, datas):
+    command = []
     command += ["--noconfirm"]
+    command += ["--windowed"]
+    command += ["--name=%s" % app]
 
     modules = find_python_modules(package_dir, imports) + imports
+    modules = set(modules)
     for module in modules:
-        command += ["--hidden-import", module]
+        command += ["--hidden-import=%s" % module]
 
     for module in excludes:
-        command += ["--exclude-module", module]
+        command += ["--exclude-module=%s" % module]
 
     for path, datafiles in datas.items():
         path = os.path.join(".", path)
         for datafile in datafiles:
             data_path = os.path.join(package_dir, datafile)
             data_str = "%s;%s" % (data_path, path)
-            command += ["--add-data", data_str]
+            command += ["--add-data=%s" % data_str]
 
     command += [script]
 
-    print(command)
+    # print(command)
 
-    app = os.path.basename(script)
-    app = os.path.splitext(app)[0]
     dst_path = Path("dist") / app
     delete_path(dst_path)
 
-    subprocess.call(command)
-
-
-def filter_local_files(toc):
-    cwd = str(Path(".").absolute())
-    path_id = 1
-    remains = []
-    for each in toc:
-        if cwd not in each[path_id]:
-            remains.append(each)
-    return remains
+    pyinstaller_run(command)

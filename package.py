@@ -5,6 +5,10 @@ from pyinstaller_setup import run as pyinstaller_run
 from Cython.Build import cythonize
 from setup import (
     APP_NAME,
+    APP_DESCRIPTION,
+    APP_VERSION,
+    AUTHOR,
+    EMAIL,
     PACKAGE_DIR,
     PACKAGES,
     STARTUP_SCRIPT,
@@ -16,17 +20,17 @@ from setup import (
     extensions,
 )
 
+
 if __name__ == "__main__":
     old_argv = sys.argv
 
     sys.argv = ["setup.py", "build_ext", "--inplace"]
-
     ret = setup(
         name=APP_NAME,
-        version="0.1",
-        description="Awg waveform generation and edit application.",
-        author="Yindong Xiao",
-        author_email="xydarcher@uestc.edu.cn",
+        version=APP_VERSION,
+        description=APP_DESCRIPTION,
+        author=AUTHOR,
+        author_email=EMAIL,
         install_requires=RUNTIME_DEPS,
         setup_requires=BUILD_DEPS,
         packages=PACKAGES,
@@ -37,8 +41,8 @@ if __name__ == "__main__":
     )
 
     sys.argv = old_argv
-
     pyinstaller_run(
+        APP_NAME,
         PACKAGE_DIR,
         STARTUP_SCRIPT,
         PACKAGES + RUNTIME_DEPS,
