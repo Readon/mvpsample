@@ -11,7 +11,8 @@ from PySide.QtGui import QLineEdit
 class CustomLineEdit(QLineEdit):
     """
     dummy custom line edit widget for test
-    """        
+    """
+
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
-        print "this is a custom widget loading"
+        print("this is a custom widget loading")

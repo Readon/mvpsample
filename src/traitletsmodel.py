@@ -1,4 +1,3 @@
-
 from traitlets import HasTraits, Unicode as String, Int, Float
 from mvp import Model as Base
 
@@ -26,10 +25,11 @@ class Model(HasTraits, Base):
         return
 
     def _conversion(self, event):
-        return event['new']
+        return event["new"]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+
     class MyModel(Model):
         weight = Range(0.0, 90.0)
         text = String("")
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     func = None
 
     def foo(event):
-        print func(event)
+        print(func(event))
 
     if model.is_bindable("text"):
         func = model.connect("text", foo)
@@ -53,6 +53,6 @@ if __name__ == '__main__':
 
     try:
         setattr(model1, "weight", 100)
-        print "check failed"
+        print("check failed")
     except:
-        print "check succeed."
+        print("check succeed.")

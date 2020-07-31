@@ -13,9 +13,11 @@ class CustomEntry(Gtk.Entry):
     """
     custom widget inherit from gtkentry.
     """
+
     def __init__(self):
         Gtk.Entry.__init__(self)
-        print "this is a custom widget loading"
-        
+        print("this is a custom widget loading")
+
+
 GObject.type_register(CustomEntry)
-        
+

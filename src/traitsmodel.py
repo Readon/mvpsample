@@ -1,4 +1,3 @@
-
 from traits.api import HasTraits, String, Int, Float, Range
 from mvp import Model as Base
 
@@ -12,7 +11,7 @@ class Model(HasTraits, Base):
         return entry in self.class_trait_names()
 
     def connect(self, entry, action):
-        print type(action)
+        print(type(action))
         self.on_trait_change(action, entry)
         return self._conversion
 
@@ -25,7 +24,9 @@ class Model(HasTraits, Base):
 
 
 from traits.api import String, Range
-if __name__ == '__main__':
+
+if __name__ == "__main__":
+
     class MyModel(Model):
         weight = Range(0, 90)
         text = String("")
@@ -35,7 +36,7 @@ if __name__ == '__main__':
     func = None
 
     def foo(event):
-        print func(event)
+        print(func(event))
 
     if model.is_bindable("text"):
         func = model.connect("text", foo)
@@ -49,6 +50,6 @@ if __name__ == '__main__':
 
     try:
         setattr(model1, "weight", 100)
-        print "check failed"
+        print("check failed")
     except:
-        print "check succeed."
+        print("check succeed.")

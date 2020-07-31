@@ -1,4 +1,3 @@
-
 from eventize import on_change, Attribute
 from eventize import Attribute as String
 from eventize import Attribute as Int
@@ -42,6 +41,7 @@ class Model(Base):
 
 class Range(Attribute):
     on_change = OnChangeHandler()
+
     def __init__(self, min_, max_, default=None):
         super(Range, self).__init__(default or min_)
 
@@ -52,10 +52,13 @@ class Range(Attribute):
     def _validate(self, event):
         if event.value > self._max or event.value < self._min:
             setattr(event.subject, event.name, event.old_value)
-            raise Exception('Value %d out of Range (%d, %d)' % (event.value, self._min, self._max))
+            raise Exception(
+                "Value %d out of Range (%d, %d)" % (event.value, self._min, self._max)
+            )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+
     class MyModel(Model):
         weight = Range(1, 90)
         text = Attribute("oo")
@@ -65,7 +68,7 @@ if __name__ == '__main__':
     func = None
 
     def foo(event):
-        print func(event)
+        print(func(event))
 
     if model.is_bindable("weight"):
         func = model.connect("weight", foo)
@@ -79,7 +82,7 @@ if __name__ == '__main__':
 
     try:
         setattr(model1, "weight", 100)
-        print "check failed."
+        print("check failed.")
     except:
-        print "check succeed."
-    print model1.text
+        print("check succeed.")
+    print(model1.text)
