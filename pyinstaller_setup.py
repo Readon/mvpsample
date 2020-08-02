@@ -49,11 +49,12 @@ def find_python_modules(root, packages):
     return ret
 
 
-def run(app, package_dir, script, imports, excludes, datas):
+def run(app, package_dir, script, imports, excludes, datas, paths):
     command = []
     command += ["--noconfirm"]
     command += ["--windowed"]
     command += ["--name=%s" % app]
+    command += ["--paths=%s" % paths]
 
     modules = find_python_modules(package_dir, imports) + imports
     modules = set(modules)
