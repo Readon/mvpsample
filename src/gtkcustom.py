@@ -20,4 +20,3 @@ class CustomEntry(Gtk.Entry):
 
 
 GObject.type_register(CustomEntry)
-

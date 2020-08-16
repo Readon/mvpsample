@@ -6,10 +6,10 @@ Created on 2013-12-16
 @copyright: reserved
 @note: View module for Gtk backend
 """
-try:        
+try:
     from gi.repository import Gtk
     from gi.repository import GObject
-except:    
+except:
     raise Exception("Install Gtk & PyGObject first.")
 from mvp import View as Base, ViewOperations
 
@@ -54,16 +54,20 @@ class View(Base):
         self.builder.add_from_file(filename)
 
         objects = self.prepare_objects()
-        self.top = [each for each in objects if isinstance(each, Gtk.Container) and each.get_parent() is None][0]
+        self.top = [
+            each
+            for each in objects
+            if isinstance(each, Gtk.Container) and each.get_parent() is None
+        ][0]
 
     def connect(self, entry, func):
-        item = getattr(self, '_'+entry)
+        item = getattr(self, "_" + entry)
         ops = self._operations[entry]
         self.signal_handlers[entry] = item.connect(ops.signal, func, ops.get_func_name)
         return ops.conversion
 
     def disconnect(self, entry, func):
-        item = getattr(self, '_'+entry)
+        item = getattr(self, "_" + entry)
         handle_id = self.signal_handlers[entry]
         item.disconnect(handle_id)
         return
@@ -79,22 +83,24 @@ class View(Base):
                 self.add_property(name, each)
         return objects
 
+
 from mvp import Presenter, Binding
 from traitletsmodel import Model, String, Range, Float, Int
-#from traitsmodel import Model, Range, String, Float, Int
-#from eventmodel import Model, Range, String, Float, Int
+
+# from traitsmodel import Model, Range, String, Float, Int
+# from eventmodel import Model, Range, String, Float, Int
 
 
 class MyModel(Model):
     weight = Range(0.0, 90.0)
     text = String("hello")
-    
+
     def __init__(self):
         super(MyModel, self).__init__()
         return
 
 
-# test for pygobject     
+# test for pygobject
 class MyView(View):
     def __init__(self, *arglist, **keywords):
         super(MyView, self).__init__(*arglist, **keywords)
@@ -108,14 +114,20 @@ class MyPresenter(Presenter):
     def __init__(self, model, view):
         super(MyPresenter, self).__init__(model, view)
 
-        self._model['default'].text = "test"
-        self._model['default'].weight = 80
+        self._model["default"].text = "test"
+        self._model["default"].weight = 80
 
     def bind_all(self):
-        self._bindings += [Binding(self._view, "entry", self._model['default'], "text")]
-        self._bindings += [Binding(self._view, "entry_copy", self._model['default'], "text")]
-        self._bindings += [Binding(self._view, "spinbutton", self._model['default'], "weight")]
-        self._bindings += [Binding(self._view, "dspinbtn", self._model['default'], "weight")]
+        self._bindings += [Binding(self._view, "entry", self._model["default"], "text")]
+        self._bindings += [
+            Binding(self._view, "entry_copy", self._model["default"], "text")
+        ]
+        self._bindings += [
+            Binding(self._view, "spinbutton", self._model["default"], "weight")
+        ]
+        self._bindings += [
+            Binding(self._view, "dspinbtn", self._model["default"], "weight")
+        ]
 
 
 class SimplePresenter(Presenter):
@@ -125,30 +137,33 @@ class SimplePresenter(Presenter):
         self._bindings += [Binding(self._view, "spinbutton", self._model, "weight")]
         self._bindings += [Binding(self._view, "dspinbtn", self._model, "weight")]
 
+
 from gtkcustom import CustomEntry
+
+
 def main():
-    
+
     win = Gtk.Window()
 
     custom_widgets = [CustomEntry]
     extra_ops = {CustomEntry: TextOps}
-    view = MyView('main.glade', custom_widgets, extra_ops)
-    model = {'default': MyModel()}
+    view = MyView("main.glade", custom_widgets, extra_ops)
+    model = {"default": MyModel()}
     obj = MyPresenter(model, view)
 
     win.add(view.get_topview())
     win.show_all()
     win.connect("delete-event", Gtk.main_quit)
 
-    #have to unbind before delete the presenter.
+    # have to unbind before delete the presenter.
     obj.unbind_all()
     del obj
 
-    #presenter could accept single model
-    model = model['default']
+    # presenter could accept single model
+    model = model["default"]
     obj = SimplePresenter(model, view)
 
-    #change model is possible when model has been changed.
+    # change model is possible when model has been changed.
     model1 = MyModel()
     model1.text = "NB"
     setattr(model1, "weight", 88)
@@ -157,5 +172,5 @@ def main():
     Gtk.main()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

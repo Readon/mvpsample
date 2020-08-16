@@ -23,10 +23,25 @@ class Bindable(object):
 
 
 class UniDirBinding(object):
-    def __init__(self, container, name, target_container, target_name, update_args=0, retreatable=False, check=False):
-        update_functions = [self._update, self._update_1, self._update_2, self._update_3, self._update_4]
+    def __init__(
+        self,
+        container,
+        name,
+        target_container,
+        target_name,
+        update_args=0,
+        retreatable=False,
+        check=False,
+    ):
+        update_functions = [
+            self._update,
+            self._update_1,
+            self._update_2,
+            self._update_3,
+            self._update_4,
+        ]
 
-        #self.get_source = partial(getattr, container, name)
+        # self.get_source = partial(getattr, container, name)
         self.set_source = partial(setattr, container, name)
         self.get_target = partial(getattr, target_container, target_name)
         self.set_target = partial(setattr, target_container, target_name)
@@ -78,8 +93,12 @@ class Binding(object):
         value = getattr(model, entry_name)
         setattr(view, widget_name, value)
 
-        self._model_bind = UniDirBinding(model, entry_name, view, widget_name, update_args=1, check=True)
-        self._view_bind = UniDirBinding(view, widget_name, model, entry_name, retreatable=True, check=True)
+        self._model_bind = UniDirBinding(
+            model, entry_name, view, widget_name, update_args=1, check=True
+        )
+        self._view_bind = UniDirBinding(
+            view, widget_name, model, entry_name, retreatable=True, check=True
+        )
         return
 
     def unbind(self):
@@ -89,7 +108,7 @@ class Binding(object):
 
     def set_view_conversion(self, function):
         self._view_bind.set_conversion(function)
-    
+
     def set_model_conversion(self, function):
         self._model_bind.set_conversion(function)
 
@@ -98,6 +117,7 @@ class Model(Bindable):
     """
     Save & manage data.
     """
+
     def __init__(self):
         return
 
@@ -126,7 +146,9 @@ class View(Bindable):
     """
     Manage widgets in view, which could be auto loaded.
     """
+
     __BIND_OP__ = {}
+
     def __init__(self):
         self._operations = {}
         return
@@ -136,18 +158,22 @@ class View(Bindable):
         return ops is not None
 
     def prepare_objects(self):
-        raise Exception("You have to implement prepare_object function in Loader's subclass!")
+        raise Exception(
+            "You have to implement prepare_object function in Loader's subclass!"
+        )
         return
-    
+
     def get_object(self, name):
-        raise Exception("You have to implement get_object function in Loader's subclass!")
+        raise Exception(
+            "You have to implement get_object function in Loader's subclass!"
+        )
         return None
-    
+
     def get_topview(self):
         return self.top
 
     def add_property(self, name, instance):
-        inst_name = "_"+name
+        inst_name = "_" + name
         setattr(self, inst_name, instance)
         ops = self.get_binding_ops(instance)
         self._operations[name] = ops
@@ -163,7 +189,7 @@ class View(Bindable):
             return self.__BIND_OP__[widget_type]
         except:
             return None
-    
+
     def update_binding_op(self, opdict):
         self.__BIND_OP__.update(opdict)
         return self.__BIND_OP__
@@ -174,6 +200,7 @@ class Presenter(object):
     Bind parts of widgets and model entries specified.
     Implement complex business logic.  
     """
+
     def __init__(self, model, view):
         self._model = model
         self._view = view
@@ -193,6 +220,6 @@ class Presenter(object):
         self._model = model
         self.bind_all()
 
-if __name__ == '__main__':
-    pass
 
+if __name__ == "__main__":
+    pass
